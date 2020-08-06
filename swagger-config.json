@@ -1,0 +1,14 @@
+{
+  "modelPackage": "com.strandls.integrator.pojo",
+  "apiPackage": "com.strandls.integrator.controllers",
+  "invokerPackage": "com.strandls.integrator",
+  "groupId": "com.strandls.biodiv",
+  "artifactId": "integrator-client",
+  "artifactVersion": "1.0.0",
+  "fullJavaUtil": true,
+  "dateLibrary": "legacy",
+  "library": "jersey2",
+  "developerName": "Vilay Kandi",
+  "developerEmail": "vilayk@strandls.com",
+  "java8": true
+}
