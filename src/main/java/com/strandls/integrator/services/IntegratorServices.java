@@ -3,6 +3,8 @@
  */
 package com.strandls.integrator.services;
 
+import javax.servlet.http.HttpServletRequest;
+
 import com.strandls.integrator.pojo.response.UserProfileData;
 import com.strandls.user.ApiException;
 
@@ -13,5 +15,5 @@ import com.strandls.user.ApiException;
  */
 public interface IntegratorServices {
 	
-	public UserProfileData fetchUserProfileById(String userId) throws ApiException;
+	public UserProfileData fetchUserProfileById(HttpServletRequest request, String userId) throws ApiException;
 }
