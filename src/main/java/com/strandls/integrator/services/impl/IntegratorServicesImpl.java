@@ -55,7 +55,8 @@ public class IntegratorServicesImpl implements IntegratorServices {
 		JSONArray roles = (JSONArray) profile.getAttribute("roles");
 		if (roles.contains("ROLE_ADMIN")) {
 			isAdmin = true;
-			userProfile.setIsAdmin(isAdmin);
+			if(profile.getId().equals(userId))
+				userProfile.setIsAdmin(isAdmin);
 		}
 		
 		// If user is not admin and trying to see somebody else profile
