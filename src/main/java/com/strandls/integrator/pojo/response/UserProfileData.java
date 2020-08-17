@@ -120,9 +120,13 @@ public class UserProfileData {
 		this.mobileValidation = user.getMobileValidation();
 		this.lastLoginDate = user.getLastLoginDate();
 
+		this.isAdmin = false;
+		
 		roles = new HashSet<Role>();
-		for(Role r : user.getRoles()) {
-			roles.add(r);
+		for(Role role : user.getRoles()) {
+			roles.add(role);
+			if(role.getAuthority().equalsIgnoreCase("ROLE_ADMIN"))
+				this.isAdmin = true;
 		}
 		
 		this.timezone = user.getTimezone();
@@ -130,7 +134,6 @@ public class UserProfileData {
 		this.sendDigest = user.getSendDigest();
 		this.sendPushNotification = user.getSendPushNotification();
 		this.website = user.getWebsite();
-		this.isAdmin = false;
 	}
 
 	public Long getId() {
