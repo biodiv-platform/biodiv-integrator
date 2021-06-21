@@ -9,7 +9,7 @@
   <version>1.0.0</version>
   <packaging>war</packaging>
 
-  <name>biodiv-integrator-api</name>
+  <name>biodiv-integrator</name>
   <url>https://github.com/strandls/biodiv-integrator</url>
   <properties>
 		<!-- Plugins property -->
