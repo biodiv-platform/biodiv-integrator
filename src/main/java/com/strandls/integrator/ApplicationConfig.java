@@ -146,7 +146,7 @@ public class ApplicationConfig extends Application {
 		return classes;
 	}
 
-	private static ArrayList<String> getClassNamesFromPackage(final String packageName)
+	public static ArrayList<String> getClassNamesFromPackage(final String packageName)
 			throws URISyntaxException, IOException {
 
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
