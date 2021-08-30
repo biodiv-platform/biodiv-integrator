@@ -45,50 +45,6 @@ public class UserProfileData {
 	
 	public UserProfileData() {
 		super();
-		// TODO Auto-generated constructor stub
-	}
-	
-	public UserProfileData(Long id, Long version, Boolean accountExpired, Boolean accountLocked,
-			Boolean passwordExpired, Long languageId, Boolean enabled, String userName, String aboutMe, String email,
-			Boolean hideEmial, String name, String profilePic, String icon, String sexType,
-			Date dateCreated, Double latitude, Double longitude, String mobileNumber, String occupation,
-			String institution, String location, Boolean sendNotification, Boolean emailValidation,
-			Boolean mobileValidation, Date lastLoginDate, Set<Role> roles, Float timezone, Boolean identificationMail,
-			Boolean sendDigest, Boolean sendPushNotification, String website, Boolean isAdmin) {
-		super();
-		this.id = id;
-		this.version = version;
-		this.accountExpired = accountExpired;
-		this.accountLocked = accountLocked;
-		this.passwordExpired = passwordExpired;
-		this.languageId = languageId;
-		this.enabled = enabled;
-		this.userName = userName;
-		this.aboutMe = aboutMe;
-		this.email = email;
-		this.hideEmial = hideEmial;
-		this.name = name;
-		this.profilePic = profilePic;
-		this.icon = icon;
-		this.sexType = sexType;
-		this.dateCreated = dateCreated;
-		this.latitude = latitude;
-		this.longitude = longitude;
-		this.mobileNumber = mobileNumber;
-		this.occupation = occupation;
-		this.institution = institution;
-		this.location = location;
-		this.sendNotification = sendNotification;
-		this.emailValidation = emailValidation;
-		this.mobileValidation = mobileValidation;
-		this.lastLoginDate = lastLoginDate;
-		this.roles = roles;
-		this.timezone = timezone;
-		this.identificationMail = identificationMail;
-		this.sendDigest = sendDigest;
-		this.sendPushNotification = sendPushNotification;
-		this.website = website;
-		this.isAdmin = isAdmin;
 	}
 	
 	public UserProfileData(User user) {
@@ -122,7 +78,7 @@ public class UserProfileData {
 
 		this.isAdmin = false;
 		
-		roles = new HashSet<Role>();
+		roles = new HashSet<>();
 		for(Role role : user.getRoles()) {
 			roles.add(role);
 			if(role.getAuthority().equalsIgnoreCase("ROLE_ADMIN"))
