@@ -57,7 +57,7 @@ public class ApplicationConfig extends Application {
 		try {
 			properties.load(in);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 
 		BeanConfig beanConfig = new BeanConfig();
@@ -146,7 +146,7 @@ public class ApplicationConfig extends Application {
 		return classes;
 	}
 
-	public static ArrayList<String> getClassNamesFromPackage(final String packageName)
+	public static List<String> getClassNamesFromPackage(final String packageName)
 			throws URISyntaxException, IOException {
 
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();

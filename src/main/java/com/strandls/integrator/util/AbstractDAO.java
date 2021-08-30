@@ -9,9 +9,6 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.CriteriaSpecification;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
-import org.hibernate.query.Query;
 
 public abstract class AbstractDAO<T, K extends Serializable> {
 
@@ -96,44 +93,4 @@ public abstract class AbstractDAO<T, K extends Serializable> {
 		session.close();
 		return entities;
 	}
-	
-	@SuppressWarnings("unchecked")
-	public List<T> fetchFilteredRecords(String attribute1, String attribute2, Object value1, Object value2,
-			String condition, String orderBy) {
-		String queryStr = "" + "from " + daoType.getSimpleName() + " t " + " where " + "t." + attribute1 + " "
-				+ condition + " :value1" + " and " + "t." + attribute2 + " " + condition + " :value2" + " order by "
-				+ ":orderby" + " desc";
-
-		Session session = sessionFactory.openSession();
-		Query<T> query = session.createQuery(queryStr);
-		query.setParameter("value1", value1);
-		query.setParameter("value2", value2);
-		query.setParameter("orderby", orderBy);
-
-		List<T> resultList = query.getResultList();
-		session.close();
-		return resultList;
-	}
-
-	@SuppressWarnings({ "unchecked", "deprecation" })
-	public List<T> fetchFilteredRecordsWithCriteria(String attribute1, String attribute2, List<Long> value1,
-			Object value2, String orderBy, Integer offSet, Integer limit) {
-		Session session = sessionFactory.openSession();
-			Criteria criteria = session.createCriteria(daoType.getName());
-			if (attribute1 != null) {
-				criteria.add(Restrictions.in(attribute1, value1));
-			}
-			if (attribute2 != null)
-				criteria.add(Restrictions.eq(attribute2, value2));
-			if (orderBy != null)
-				criteria.addOrder(Order.desc(orderBy));
-			if (offSet != -1)
-				criteria.setFirstResult(offSet);
-			if (limit != -1)
-				criteria.setMaxResults(limit);
-			List<T> result = criteria.list();
-			session.close();
-			return result;
-	}
-
 }

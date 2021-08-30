@@ -57,7 +57,6 @@ public class IntegratorServeletContextListener extends GuiceServletContextListen
 						configuration.addAnnotatedClass(cls);
 					}
 				} catch (ClassNotFoundException | IOException | URISyntaxException e) {
-					e.printStackTrace();
 					logger.error(e.getMessage());
 				}
 
