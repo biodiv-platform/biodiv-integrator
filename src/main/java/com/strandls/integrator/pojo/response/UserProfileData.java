@@ -8,9 +8,8 @@ import com.strandls.user.pojo.Role;
 import com.strandls.user.pojo.User;
 
 public class UserProfileData {
-	
+
 	private Long id;
-	private Long version;
 	private Boolean accountExpired;
 	private Boolean accountLocked;
 	private Boolean passwordExpired;
@@ -38,19 +37,17 @@ public class UserProfileData {
 	private Set<Role> roles;
 	private Float timezone;
 	private Boolean identificationMail;
-	private Boolean sendDigest;
 	private Boolean sendPushNotification;
 	private String website;
 	private Boolean isAdmin;
-	
+
 	public UserProfileData() {
 		super();
 	}
-	
+
 	public UserProfileData(User user) {
 		super();
 		this.id = user.getId();
-		this.version = user.getVersion();
 		this.accountExpired = user.getAccountExpired();
 		this.accountLocked = user.getAccountLocked();
 		this.passwordExpired = user.getPasswordExpired();
@@ -77,17 +74,16 @@ public class UserProfileData {
 		this.lastLoginDate = user.getLastLoginDate();
 
 		this.isAdmin = false;
-		
+
 		roles = new HashSet<>();
-		for(Role role : user.getRoles()) {
+		for (Role role : user.getRoles()) {
 			roles.add(role);
-			if(role.getAuthority().equalsIgnoreCase("ROLE_ADMIN"))
+			if (role.getAuthority().equalsIgnoreCase("ROLE_ADMIN"))
 				this.isAdmin = true;
 		}
-		
+
 		this.timezone = user.getTimezone();
 		this.identificationMail = user.getIdentificationMail();
-		this.sendDigest = user.getSendDigest();
 		this.sendPushNotification = user.getSendPushNotification();
 		this.website = user.getWebsite();
 	}
@@ -98,14 +94,6 @@ public class UserProfileData {
 
 	public void setId(Long id) {
 		this.id = id;
-	}
-
-	public Long getVersion() {
-		return version;
-	}
-
-	public void setVersion(Long version) {
-		this.version = version;
 	}
 
 	public Boolean getAccountExpired() {
@@ -322,14 +310,6 @@ public class UserProfileData {
 
 	public void setIdentificationMail(Boolean identificationMail) {
 		this.identificationMail = identificationMail;
-	}
-
-	public Boolean getSendDigest() {
-		return sendDigest;
-	}
-
-	public void setSendDigest(Boolean sendDigest) {
-		this.sendDigest = sendDigest;
 	}
 
 	public Boolean getSendPushNotification() {
