@@ -1,4 +1,4 @@
-package com.strandls.integrator.pojo.response;
+package com.strandls.integrator.pojo;
 
 import java.util.Date;
 import java.util.HashSet;

@@ -16,7 +16,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import com.strandls.integrator.ApiConstants;
-import com.strandls.integrator.pojo.response.UserProfileData;
+import com.strandls.integrator.pojo.UserProfileData;
 import com.strandls.integrator.services.IntegratorServices;
 
 import io.swagger.annotations.Api;
