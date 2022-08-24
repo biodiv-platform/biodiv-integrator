@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.strandls.activity.pojo.UserGroupActivity;
+import com.strandls.integrator.Headers;
 import com.strandls.integrator.dao.UserGroupCreatedOnDateRuleDao;
 import com.strandls.integrator.dao.UserGroupFilterRuleDao;
 import com.strandls.integrator.dao.UserGroupObservedOnDateRuleDao;
@@ -23,7 +24,11 @@ import com.strandls.integrator.dao.UserGroupSpatialDataDao;
 import com.strandls.integrator.dao.UserGroupTaxonomicRuleDao;
 import com.strandls.integrator.pojo.ShowFilterRule;
 import com.strandls.integrator.pojo.UserGroupCreatedOnDateRule;
+import com.strandls.integrator.pojo.UserGroupFilterDate;
+import com.strandls.integrator.pojo.UserGroupFilterEnable;
+import com.strandls.integrator.pojo.UserGroupFilterRemove;
 import com.strandls.integrator.pojo.UserGroupFilterRule;
+import com.strandls.integrator.pojo.UserGroupFilterRuleInputData;
 import com.strandls.integrator.pojo.UserGroupObservedonDateRule;
 import com.strandls.integrator.pojo.UserGroupSpatialData;
 import com.strandls.integrator.pojo.UserGroupTaxonomicRule;
@@ -34,10 +39,6 @@ import com.strandls.taxonomy.pojo.BreadCrumb;
 import com.strandls.user.ApiException;
 import com.strandls.user.controller.UserServiceApi;
 import com.strandls.userGroup.controller.UserGroupSerivceApi;
-import com.strandls.userGroup.pojo.UserGroupFilterDate;
-import com.strandls.userGroup.pojo.UserGroupFilterEnable;
-import com.strandls.userGroup.pojo.UserGroupFilterRemove;
-import com.strandls.userGroup.pojo.UserGroupFilterRuleInputData;
 import com.strandls.userGroup.pojo.UserGroupIbp;
 import com.strandls.userGroup.pojo.UserGroupObservation;
 import com.strandls.userGroup.pojo.UserGroupObvFilterData;
@@ -84,6 +85,9 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 	@Inject
 	private UserGroupSerivceApi ugService;
 
+	@Inject
+	private Headers headers;
+
 	private Boolean checkObservedOnDateFilter(Long userGroupId, Date observedOnDate) {
 		List<UserGroupObservedonDateRule> observedDateData = ugObservedDateDao.findByUserGroupIdIsEnabled(userGroupId);
 		if (observedDateData != null && !observedDateData.isEmpty()) {
@@ -128,8 +132,9 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 	}
 
 //	check user rule filter
-	private Boolean checkUserRule(Long userGroupId, Long userId) {
+	private Boolean checkUserRule(HttpServletRequest request, Long userGroupId, Long userId) {
 		try {
+			ugService = headers.addUserGroupHeader(ugService, request.getHeader(HttpHeaders.AUTHORIZATION));
 			return ugService.checkUserMember(userGroupId.toString());
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -208,13 +213,17 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 
 			for (Long ugid : ugIdFilterList) {
 				if (!ugIdObvList.contains(ugid)) {
-					Boolean isEligible = checkUserGroupEligiblity(ugid, ugFilterData.getAuthorId(), ugFilterData,
-							false);
+					Boolean isEligible = checkUserGroupEligiblity(request, ugid, ugFilterData.getAuthorId(),
+							ugFilterData, false);
 					if (Boolean.TRUE.equals(isEligible)) {
 						UserGroupObservation ugObv = new UserGroupObservation();
 						ugObv.setObservationId(ugFilterData.getObservationId());
 						ugObv.setUserGroupId(ugid);
-						ugObv = ugObvDao.save(ugObv);
+
+						ugService = headers.addUserGroupHeader(ugService, request.getHeader(HttpHeaders.AUTHORIZATION));
+						ugObv = ugService.createObservationUserGroup(ugFilterData.getObservationId().toString(),
+								ugid.toString());
+
 						if (ugObv != null) {
 							try {
 								logUgActivityDescrption(ugid, "observation", "Posted resource",
@@ -293,12 +302,13 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 			for (Long ugid : ugIdObvList) {
 				if (ugIdFilterList.contains(ugid)) {
 
-					Boolean isEligible = checkUserGroupEligiblity(ugid, ugObvFilterData.getAuthorId(), ugObvFilterData,
-							true);
+					Boolean isEligible = checkUserGroupEligiblity(request, ugid, ugObvFilterData.getAuthorId(),
+							ugObvFilterData, true);
 					if (Boolean.FALSE.equals(isEligible)) {
-						UserGroupObservation ugObvMapping = ugService.checkUserGroupObservationPermission(
-								ugObvFilterData.getObservationId().toString(), ugid.toString());
-						ugObvDao.delete(ugObvMapping);
+						ugService = headers.addUserGroupHeader(ugService, request.getHeader(HttpHeaders.AUTHORIZATION));
+						ugService.removeObservationUserGroup(ugObvFilterData.getObservationId().toString(),
+								ugid.toString());
+
 						try {
 							logUgActivityDescrption(ugid, "observation", "Removed resoruce",
 									"Removed Through Filter Rules", ugObvFilterData);
@@ -317,8 +327,8 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 	}
 
 	@Override
-	public Boolean checkUserGroupEligiblity(Long userGroupId, Long authorId, UserGroupObvFilterData ugFilterData,
-			Boolean isPosting) {
+	public Boolean checkUserGroupEligiblity(HttpServletRequest request, Long userGroupId, Long authorId,
+			UserGroupObvFilterData ugFilterData, Boolean isPosting) {
 		try {
 			UserGroupFilterRule ugFilter = ugFilterRuleDao.findByUserGroupId(userGroupId);
 			Boolean isSpartial = false;
@@ -339,7 +349,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 						return false;
 				}
 				if (ugFilter.getHasUserRule()) {
-					isUser = checkUserRule(userGroupId, authorId);
+					isUser = checkUserRule(request, userGroupId, authorId);
 					if (isUser)
 						result = true;
 					else
@@ -388,7 +398,8 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 		return false;
 	}
 
-	private String findReason(Long userGroupId, Long authorId, UserGroupObvFilterData ugObvFilterData) {
+	private String findReason(HttpServletRequest request, Long userGroupId, Long authorId,
+			UserGroupObvFilterData ugObvFilterData) {
 
 		try {
 
@@ -407,7 +418,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 						reason = reason + " taxonomic Rule ,";
 				}
 				if (ugFilter.getHasUserRule()) {
-					Boolean isUser = checkUserRule(userGroupId, authorId);
+					Boolean isUser = checkUserRule(request, userGroupId, authorId);
 					if (!isUser)
 						reason = reason + " User Rule ,";
 				}
@@ -742,13 +753,15 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 				UserGroupObservation ugObvMapping = ugService.checkUserGroupObservationPermission(
 						ugFilterData.getObservationId().toString(), userGroupId.toString());
 				if (ugObvMapping == null) {
-					Boolean isEligible = checkUserGroupEligiblity(userGroupId, ugFilterData.getAuthorId(), ugFilterData,
-							false);
+					Boolean isEligible = checkUserGroupEligiblity(request, userGroupId, ugFilterData.getAuthorId(),
+							ugFilterData, false);
 					if (isEligible) {
 						UserGroupObservation ugObv = new UserGroupObservation();
 						ugObv.setObservationId(ugFilterData.getObservationId());
 						ugObv.setUserGroupId(userGroupId);
-						ugObvDao.save(ugObv);
+						ugService = headers.addUserGroupHeader(ugService, request.getHeader(HttpHeaders.AUTHORIZATION));
+						ugObv = ugService.createObservationUserGroup(ugFilterData.getObservationId().toString(),
+								userGroupId.toString());
 
 						InputStream in = Thread.currentThread().getContextClassLoader()
 								.getResourceAsStream("config.properties");
@@ -801,10 +814,13 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 				UserGroupObservation ugObvMapping = ugService.checkUserGroupObservationPermission(
 						ugFilterData.getObservationId().toString(), userGroupId.toString());
 				if (ugObvMapping != null) {
-					Boolean isEligible = checkUserGroupEligiblity(userGroupId, ugFilterData.getAuthorId(), ugFilterData,
-							true);
+					Boolean isEligible = checkUserGroupEligiblity(request, userGroupId, ugFilterData.getAuthorId(),
+							ugFilterData, true);
 					if (!isEligible) {
-						ugObvDao.delete(ugObvugObvDaoMapping);
+
+						ugService = headers.addUserGroupHeader(ugService, request.getHeader(HttpHeaders.AUTHORIZATION));
+						ugService.removeObservationUserGroup(ugFilterData.getObservationId().toString(),
+								userGroupId.toString());
 
 						InputStream in = Thread.currentThread().getContextClassLoader()
 								.getResourceAsStream("config.properties");
@@ -829,7 +845,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 						ugActivity.setUserGroupName(ugIbp.getName());
 						ugActivity.setWebAddress(ugIbp.getWebAddress());
 						ugActivity.setReason("Removed Through Filter Rules "
-								+ findReason(userGroupId, ugFilterData.getAuthorId(), ugFilterData));
+								+ findReason(request, userGroupId, ugFilterData.getAuthorId(), ugFilterData));
 						try {
 							description = objectMapper.writeValueAsString(ugActivity);
 						} catch (Exception e) {

@@ -5,15 +5,15 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import com.strandls.integrator.pojo.ShowFilterRule;
-import com.strandls.userGroup.pojo.UserGroupFilterEnable;
-import com.strandls.userGroup.pojo.UserGroupFilterRemove;
-import com.strandls.userGroup.pojo.UserGroupFilterRuleInputData;
+import com.strandls.integrator.pojo.UserGroupFilterEnable;
+import com.strandls.integrator.pojo.UserGroupFilterRemove;
+import com.strandls.integrator.pojo.UserGroupFilterRuleInputData;
 import com.strandls.userGroup.pojo.UserGroupObvFilterData;
 
 public interface RuleFilterService {
 
-	public Boolean checkUserGroupEligiblity(Long userGroupId, Long userId, UserGroupObvFilterData ugFilterData,
-			Boolean isPosting);
+	public Boolean checkUserGroupEligiblity(HttpServletRequest request, Long userGroupId, Long userId,
+			UserGroupObvFilterData ugFilterData, Boolean isPosting);
 
 	public void bgFiltureRule(HttpServletRequest request, UserGroupObvFilterData ugObvFilterData);
 
