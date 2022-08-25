@@ -27,5 +27,6 @@ public class ApiConstants {
 	public static final String REMOVE = "/remove";
 	public static final String BULK = "/bulk";
 	public static final String SHOW = "/show";
+	public static final String GROUPELIGIBLE = "groupEligible";
 
 }

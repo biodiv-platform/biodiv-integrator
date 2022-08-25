@@ -210,30 +210,29 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 			List<Long> ugIdObvList = new ArrayList<Long>();
 			for (UserGroupIbp ugObv : ugObservation)
 				ugIdObvList.add(ugObv.getId());
-
+			ugIdFilterList = checkUserGroupEligiblity(request, ugIdFilterList, ugFilterData.getAuthorId(), ugFilterData,
+					false);
 			for (Long ugid : ugIdFilterList) {
-				if (!ugIdObvList.contains(ugid)) {
-					Boolean isEligible = checkUserGroupEligiblity(request, ugid, ugFilterData.getAuthorId(),
-							ugFilterData, false);
-					if (Boolean.TRUE.equals(isEligible)) {
-						UserGroupObservation ugObv = new UserGroupObservation();
-						ugObv.setObservationId(ugFilterData.getObservationId());
-						ugObv.setUserGroupId(ugid);
+				if (ugid != null && !ugIdObvList.contains(ugid)) {
 
-						ugService = headers.addUserGroupHeader(ugService, request.getHeader(HttpHeaders.AUTHORIZATION));
-						ugObv = ugService.createObservationUserGroup(ugFilterData.getObservationId().toString(),
-								ugid.toString());
+					UserGroupObservation ugObv = new UserGroupObservation();
+					ugObv.setObservationId(ugFilterData.getObservationId());
+					ugObv.setUserGroupId(ugid);
 
-						if (ugObv != null) {
-							try {
-								logUgActivityDescrption(ugid, "observation", "Posted resource",
-										"Added Through Filter Rules", ugFilterData);
+					ugService = headers.addUserGroupHeader(ugService, request.getHeader(HttpHeaders.AUTHORIZATION));
+					ugObv = ugService.createObservationUserGroup(ugFilterData.getObservationId().toString(),
+							ugid.toString());
 
-							} catch (Exception e) {
-								logger.error(e.getMessage());
-							}
+					if (ugObv != null) {
+						try {
+							logUgActivityDescrption(ugid, "observation", "Posted resource",
+									"Added Through Filter Rules", ugFilterData);
+
+						} catch (Exception e) {
+							logger.error(e.getMessage());
 						}
 					}
+
 				}
 			}
 		} catch (Exception e) {
@@ -299,23 +298,22 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 			for (UserGroupIbp ugObv : ugObservation)
 				ugIdObvList.add(ugObv.getId());
 
+			ugIdObvList = checkUserGroupEligiblity(request, ugIdObvList, ugObvFilterData.getAuthorId(), ugObvFilterData,
+					true);
+
 			for (Long ugid : ugIdObvList) {
-				if (ugIdFilterList.contains(ugid)) {
+				if (ugid != null && ugIdFilterList.contains(ugid)) {
 
-					Boolean isEligible = checkUserGroupEligiblity(request, ugid, ugObvFilterData.getAuthorId(),
-							ugObvFilterData, true);
-					if (Boolean.FALSE.equals(isEligible)) {
-						ugService = headers.addUserGroupHeader(ugService, request.getHeader(HttpHeaders.AUTHORIZATION));
-						ugService.removeObservationUserGroup(ugObvFilterData.getObservationId().toString(),
-								ugid.toString());
+					ugService = headers.addUserGroupHeader(ugService, request.getHeader(HttpHeaders.AUTHORIZATION));
+					ugService.removeObservationUserGroup(ugObvFilterData.getObservationId().toString(),
+							ugid.toString());
 
-						try {
-							logUgActivityDescrption(ugid, "observation", "Removed resoruce",
-									"Removed Through Filter Rules", ugObvFilterData);
+					try {
+						logUgActivityDescrption(ugid, "observation", "Removed resoruce", "Removed Through Filter Rules",
+								ugObvFilterData);
 
-						} catch (Exception e) {
-							logger.error(e.getMessage());
-						}
+					} catch (Exception e) {
+						logger.error(e.getMessage());
 					}
 
 				}
@@ -327,75 +325,82 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 	}
 
 	@Override
-	public Boolean checkUserGroupEligiblity(HttpServletRequest request, Long userGroupId, Long authorId,
+	public List<Long> checkUserGroupEligiblity(HttpServletRequest request, List<Long> userGroupIds, Long authorId,
 			UserGroupObvFilterData ugFilterData, Boolean isPosting) {
+		List<Long> eligibleUgIds = new ArrayList<>();
 		try {
-			UserGroupFilterRule ugFilter = ugFilterRuleDao.findByUserGroupId(userGroupId);
-			Boolean isSpartial = false;
-			Boolean isTaxo = false;
-			Boolean isUser = false;
-			Boolean isCreatedOn = false;
-			Boolean isObservedOn = false;
 
-			Boolean result = true;
-
-			if (ugFilter != null) {
-				result = false;
-				if (ugFilter.getHasSpatialRule()) {
-					isSpartial = checkSpatialRule(userGroupId, ugFilterData.getLatitude(), ugFilterData.getLongitude());
-					if (isSpartial)
-						result = true;
-					else
-						return false;
-				}
-				if (ugFilter.getHasUserRule()) {
-					isUser = checkUserRule(request, userGroupId, authorId);
-					if (isUser)
-						result = true;
-					else
-						return false;
-
-				}
-				if (ugFilter.getHasCreatedOnDateRule()) {
-					isCreatedOn = checkCreatedOnDateFilter(userGroupId, ugFilterData.getCreatedOnDate());
-					if (isCreatedOn)
-						result = true;
-					else
-						return false;
-				}
-				if (ugFilter.getHasObservedOnDateRule()) {
-					isObservedOn = checkObservedOnDateFilter(userGroupId, ugFilterData.getObservedOnDate());
-					if (isObservedOn)
-						result = true;
-					else
-						return false;
-				}
-
-				if (ugFilter.getHasTaxonomicRule()) {
-					if (ugFilterData.getTaxonomyId() != null) {
-						isTaxo = checkTaxonomicRule(userGroupId, ugFilterData.getTaxonomyId());
-						if (isTaxo)
+			for (Long ugId : userGroupIds) {
+				UserGroupFilterRule ugFilter = ugFilterRuleDao.findByUserGroupId(ugId);
+				Boolean isSpartial = false;
+				Boolean isTaxo = false;
+				Boolean isUser = false;
+				Boolean isCreatedOn = false;
+				Boolean isObservedOn = false;
+				Boolean result = null;
+				if (ugFilter != null) {
+					result = false;
+					if (ugFilter.getHasSpatialRule()) {
+						isSpartial = checkSpatialRule(ugId, ugFilterData.getLatitude(), ugFilterData.getLongitude());
+						if (isSpartial)
 							result = true;
 						else
-							return false;
-					} else if (!isPosting) {
-						return false;
-					} else if (isPosting)
+							result = false;
+					}
+					if (ugFilter.getHasUserRule()) {
+						isUser = checkUserRule(request, ugId, authorId);
+						if (isUser)
+							result = true;
+						else
+							result = false;
+
+					}
+					if (ugFilter.getHasCreatedOnDateRule()) {
+						isCreatedOn = checkCreatedOnDateFilter(ugId, ugFilterData.getCreatedOnDate());
+						if (isCreatedOn)
+							result = true;
+						else
+							result = false;
+					}
+					if (ugFilter.getHasObservedOnDateRule()) {
+						isObservedOn = checkObservedOnDateFilter(ugId, ugFilterData.getObservedOnDate());
+						if (isObservedOn)
+							result = true;
+						else
+							result = false;
+					}
+
+					if (ugFilter.getHasTaxonomicRule()) {
+						if (ugFilterData.getTaxonomyId() != null) {
+							isTaxo = checkTaxonomicRule(ugId, ugFilterData.getTaxonomyId());
+							if (isTaxo)
+								result = true;
+							else
+								result = false;
+						} else if (!isPosting) {
+							result = false;
+						} else if (isPosting)
+							result = true;
+
+					}
+
+					if (ugFilter.getHasSpatialRule() == false && ugFilter.getHasTaxonomicRule() == false
+							&& ugFilter.getHasUserRule() == false && ugFilter.getHasCreatedOnDateRule() == false
+							&& ugFilter.getHasObservedOnDateRule() == false)
 						result = true;
 
 				}
 
-				if (ugFilter.getHasSpatialRule() == false && ugFilter.getHasTaxonomicRule() == false
-						&& ugFilter.getHasUserRule() == false && ugFilter.getHasCreatedOnDateRule() == false
-						&& ugFilter.getHasObservedOnDateRule() == false)
-					return true;
+				if (Boolean.TRUE.equals(result)) {
+					eligibleUgIds.add(ugId);
+				}
 
 			}
-			return result;
+
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
-		return false;
+		return eligibleUgIds;
 	}
 
 	private String findReason(HttpServletRequest request, Long userGroupId, Long authorId,
@@ -753,9 +758,10 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 				UserGroupObservation ugObvMapping = ugService.checkUserGroupObservationPermission(
 						ugFilterData.getObservationId().toString(), userGroupId.toString());
 				if (ugObvMapping == null) {
-					Boolean isEligible = checkUserGroupEligiblity(request, userGroupId, ugFilterData.getAuthorId(),
-							ugFilterData, false);
-					if (isEligible) {
+					List<Long> ugIds = new ArrayList<>();
+					ugIds.add(userGroupId);
+					ugIds = checkUserGroupEligiblity(request, ugIds, ugFilterData.getAuthorId(), ugFilterData, false);
+					if (ugIds != null && !ugIds.isEmpty()) {
 						UserGroupObservation ugObv = new UserGroupObservation();
 						ugObv.setObservationId(ugFilterData.getObservationId());
 						ugObv.setUserGroupId(userGroupId);
@@ -814,9 +820,10 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 				UserGroupObservation ugObvMapping = ugService.checkUserGroupObservationPermission(
 						ugFilterData.getObservationId().toString(), userGroupId.toString());
 				if (ugObvMapping != null) {
-					Boolean isEligible = checkUserGroupEligiblity(request, userGroupId, ugFilterData.getAuthorId(),
-							ugFilterData, true);
-					if (!isEligible) {
+					List<Long> ugIds = new ArrayList<>();
+					ugIds.add(userGroupId);
+					ugIds = checkUserGroupEligiblity(request, ugIds, ugFilterData.getAuthorId(), ugFilterData, true);
+					if (ugIds != null && !ugIds.isEmpty()) {
 
 						ugService = headers.addUserGroupHeader(ugService, request.getHeader(HttpHeaders.AUTHORIZATION));
 						ugService.removeObservationUserGroup(ugFilterData.getObservationId().toString(),

@@ -20,6 +20,7 @@ import javax.ws.rs.core.Response.Status;
 
 import com.strandls.authentication_utility.filter.ValidateUser;
 import com.strandls.integrator.ApiConstants;
+import com.strandls.integrator.pojo.CheckFilterRule;
 import com.strandls.integrator.pojo.ShowFilterRule;
 import com.strandls.integrator.pojo.UserGroupFilterEnable;
 import com.strandls.integrator.pojo.UserGroupFilterRemove;
@@ -73,6 +74,26 @@ public class IntegratorController {
 		try {
 
 			UserProfileData result = services.fetchUserProfileById(request, userId);
+			return Response.status(Status.OK).entity(result).build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+	}
+
+	@GET
+	@Path(ApiConstants.FILTERRULE + ApiConstants.GROUPELIGIBLE)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ApiOperation(value = "check group observation eligibility", notes = "return the user group positing eligiblity", response = Boolean.class)
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "unable to fetch the data", response = String.class) })
+
+	public Response checkUserGroupEligiblity(@Context HttpServletRequest request,
+			@ApiParam(name = "checkFilterRule") CheckFilterRule checkFilterRule) {
+		try {
+
+			List<Long> result = ruleFilterService.checkUserGroupEligiblity(request, checkFilterRule.getUserGroupId(),
+					checkFilterRule.getUgObvFilterData().getAuthorId(), checkFilterRule.getUgObvFilterData(), true);
 			return Response.status(Status.OK).entity(result).build();
 		} catch (Exception e) {
 			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
