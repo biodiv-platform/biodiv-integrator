@@ -85,7 +85,7 @@ public class IntegratorController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 
-	@ApiOperation(value = "check group observation eligibility", notes = "return the user group positing eligiblity", response = Boolean.class)
+	@ApiOperation(value = "check group observation eligibility", notes = "return the user group positing eligiblity", response = Long.class, responseContainer = "List")
 	@ApiResponses(value = { @ApiResponse(code = 400, message = "unable to fetch the data", response = String.class) })
 
 	public Response checkUserGroupEligiblity(@Context HttpServletRequest request,
