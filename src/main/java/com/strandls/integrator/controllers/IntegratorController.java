@@ -25,10 +25,10 @@ import com.strandls.integrator.pojo.ShowFilterRule;
 import com.strandls.integrator.pojo.UserGroupFilterEnable;
 import com.strandls.integrator.pojo.UserGroupFilterRemove;
 import com.strandls.integrator.pojo.UserGroupFilterRuleInputData;
+import com.strandls.integrator.pojo.UserGroupObvRuleData;
 import com.strandls.integrator.pojo.UserProfileData;
 import com.strandls.integrator.services.IntegratorServices;
 import com.strandls.integrator.services.impl.RuleFilterServiceImpl;
-import com.strandls.userGroup.pojo.UserGroupObvFilterData;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -112,7 +112,7 @@ public class IntegratorController {
 			@ApiResponse(code = 400, message = "Unable to set the filter Rule", response = String.class) })
 
 	public Response getFilterRule(@Context HttpServletRequest request,
-			@ApiParam(name = "ugObvFilterData") UserGroupObvFilterData ugObvFilterData) {
+			@ApiParam(name = "ugObvFilterData") UserGroupObvRuleData ugObvFilterData) {
 		try {
 			ruleFilterService.bgFiltureRule(request, ugObvFilterData);
 			return Response.status(Status.OK).build();
@@ -133,7 +133,7 @@ public class IntegratorController {
 			@ApiResponse(code = 400, message = "Unable to set the filter Rule", response = String.class) })
 
 	public Response bulkFilterRulePosting(@Context HttpServletRequest request, @PathParam("userGroupId") String groupId,
-			@ApiParam(name = "ugObvFilterDataList") List<UserGroupObvFilterData> ugObvFilterDataList) {
+			@ApiParam(name = "ugObvFilterDataList") List<UserGroupObvRuleData> ugObvFilterDataList) {
 		try {
 			Long userGroupId = Long.parseLong(groupId);
 			ruleFilterService.bulkFilteringIn(request, userGroupId, ugObvFilterDataList);
@@ -154,7 +154,7 @@ public class IntegratorController {
 
 	public Response bulkFilterRuleRemoving(@Context HttpServletRequest request,
 			@PathParam("userGroupId") String groupId,
-			@ApiParam(name = "ugObvFilterDataList") List<UserGroupObvFilterData> ugObvFilterDataList) {
+			@ApiParam(name = "ugObvFilterDataList") List<UserGroupObvRuleData> ugObvFilterDataList) {
 		try {
 			Long userGroupId = Long.parseLong(groupId);
 			ruleFilterService.bulkFilteringOut(request, userGroupId, ugObvFilterDataList);

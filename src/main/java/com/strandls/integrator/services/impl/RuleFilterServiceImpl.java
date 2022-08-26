@@ -30,6 +30,7 @@ import com.strandls.integrator.pojo.UserGroupFilterRemove;
 import com.strandls.integrator.pojo.UserGroupFilterRule;
 import com.strandls.integrator.pojo.UserGroupFilterRuleInputData;
 import com.strandls.integrator.pojo.UserGroupObservedonDateRule;
+import com.strandls.integrator.pojo.UserGroupObvRuleData;
 import com.strandls.integrator.pojo.UserGroupSpatialData;
 import com.strandls.integrator.pojo.UserGroupTaxonomicRule;
 import com.strandls.integrator.services.RuleFilterService;
@@ -41,7 +42,6 @@ import com.strandls.user.controller.UserServiceApi;
 import com.strandls.userGroup.controller.UserGroupSerivceApi;
 import com.strandls.userGroup.pojo.UserGroupIbp;
 import com.strandls.userGroup.pojo.UserGroupObservation;
-import com.strandls.userGroup.pojo.UserGroupObvFilterData;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -189,7 +189,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 	}
 
 	@Override
-	public void bgFiltureRule(HttpServletRequest request, UserGroupObvFilterData ugObvFilterData) {
+	public void bgFiltureRule(HttpServletRequest request, UserGroupObvRuleData ugObvFilterData) {
 		bgPostingUG(request, ugObvFilterData);
 		bgUnPostingUG(request, ugObvFilterData);
 
@@ -197,7 +197,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 
 //	for posting observation to usergroup
 	@Override
-	public void bgPostingUG(HttpServletRequest request, UserGroupObvFilterData ugFilterData) {
+	public void bgPostingUG(HttpServletRequest request, UserGroupObvRuleData ugFilterData) {
 
 		try {
 
@@ -242,7 +242,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 	}
 
 	private void logUgActivityDescrption(Long ugid, String module, String message, String reason,
-			UserGroupObvFilterData ugFilterData) throws IOException, ApiException {
+			UserGroupObvRuleData ugFilterData) throws IOException, ApiException {
 
 		InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties");
 		Properties properties = new Properties();
@@ -284,7 +284,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 
 //	for  unposting observation from a userGroup
 	@Override
-	public void bgUnPostingUG(HttpServletRequest request, UserGroupObvFilterData ugObvFilterData) {
+	public void bgUnPostingUG(HttpServletRequest request, UserGroupObvRuleData ugObvFilterData) {
 
 		try {
 
@@ -326,7 +326,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 
 	@Override
 	public List<Long> checkUserGroupEligiblity(HttpServletRequest request, List<Long> userGroupIds, Long authorId,
-			UserGroupObvFilterData ugFilterData, Boolean isPosting) {
+			UserGroupObvRuleData ugFilterData, Boolean isPosting) {
 		List<Long> eligibleUgIds = new ArrayList<>();
 		try {
 
@@ -404,7 +404,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 	}
 
 	private String findReason(HttpServletRequest request, Long userGroupId, Long authorId,
-			UserGroupObvFilterData ugObvFilterData) {
+			UserGroupObvRuleData ugObvFilterData) {
 
 		try {
 
@@ -752,9 +752,9 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 
 	@Override
 	public void bulkFilteringIn(HttpServletRequest request, Long userGroupId,
-			List<UserGroupObvFilterData> ugObvFilterDataList) {
+			List<UserGroupObvRuleData> ugObvFilterDataList) {
 		try {
-			for (UserGroupObvFilterData ugFilterData : ugObvFilterDataList) {
+			for (UserGroupObvRuleData ugFilterData : ugObvFilterDataList) {
 				UserGroupObservation ugObvMapping = ugService.checkUserGroupObservationPermission(
 						ugFilterData.getObservationId().toString(), userGroupId.toString());
 				if (ugObvMapping == null) {
@@ -813,9 +813,9 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 
 	@Override
 	public void bulkFilteringOut(HttpServletRequest request, Long userGroupId,
-			List<UserGroupObvFilterData> ugObvFilterDataList) {
+			List<UserGroupObvRuleData> ugObvFilterDataList) {
 		try {
-			for (UserGroupObvFilterData ugFilterData : ugObvFilterDataList) {
+			for (UserGroupObvRuleData ugFilterData : ugObvFilterDataList) {
 
 				UserGroupObservation ugObvMapping = ugService.checkUserGroupObservationPermission(
 						ugFilterData.getObservationId().toString(), userGroupId.toString());

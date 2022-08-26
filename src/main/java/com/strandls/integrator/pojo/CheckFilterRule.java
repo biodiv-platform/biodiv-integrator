@@ -2,28 +2,26 @@ package com.strandls.integrator.pojo;
 
 import java.util.List;
 
-import com.strandls.userGroup.pojo.UserGroupObvFilterData;
-
 public class CheckFilterRule {
 
-	private UserGroupObvFilterData ugObvFilterData;
+	private UserGroupObvRuleData ugObvFilterData;
 	private List<Long> userGroupId;
 
 	public CheckFilterRule() {
 		super();
 	}
 
-	public CheckFilterRule(UserGroupObvFilterData ugObvFilterData, List<Long> userGroupId) {
+	public CheckFilterRule(UserGroupObvRuleData ugObvFilterData, List<Long> userGroupId) {
 		super();
 		this.ugObvFilterData = ugObvFilterData;
 		this.userGroupId = userGroupId;
 	}
 
-	public UserGroupObvFilterData getUgObvFilterData() {
+	public UserGroupObvRuleData getUgObvFilterData() {
 		return ugObvFilterData;
 	}
 
-	public void setUgObvFilterData(UserGroupObvFilterData ugObvFilterData) {
+	public void setUgObvFilterData(UserGroupObvRuleData ugObvFilterData) {
 		this.ugObvFilterData = ugObvFilterData;
 	}
 
