@@ -88,6 +88,11 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 	@Inject
 	private Headers headers;
 
+	private String removeFilterRule = "Removed Filter Rule";
+	private String enabled = "Enabled";
+	private String disabled = "Disabled";
+	private String disableFilterRule = "Disabled Filter Rule";
+
 	private Boolean checkObservedOnDateFilter(Long userGroupId, Date observedOnDate) {
 		List<UserGroupObservedonDateRule> observedDateData = ugObservedDateDao.findByUserGroupIdIsEnabled(userGroupId);
 		if (observedDateData != null && !observedDateData.isEmpty()) {
@@ -152,7 +157,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 			List<UserGroupTaxonomicRule> taxonomicRule = ugtaxonomicDao.findByUserGroupIdIsEnabled(userGroupId);
 			if (taxonomicRule != null && !taxonomicRule.isEmpty()) {
 				List<BreadCrumb> breadCrumbs = taxonomyTreeService.getTaxonomyBreadCrumb(taxonomyId.toString());
-				List<Long> taxonomyPath = new ArrayList<Long>();
+				List<Long> taxonomyPath = new ArrayList<>();
 				for (BreadCrumb breadCrumb : breadCrumbs) {
 					taxonomyPath.add(breadCrumb.getId());
 				}
@@ -204,10 +209,10 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 			List<UserGroupFilterRule> ugFilterList = ugFilterRuleDao.findAll();
 			List<UserGroupIbp> ugObservation = ugService
 					.getObservationUserGroup(ugFilterData.getObservationId().toString());
-			List<Long> ugIdFilterList = new ArrayList<Long>();
+			List<Long> ugIdFilterList = new ArrayList<>();
 			for (UserGroupFilterRule ugFilter : ugFilterList)
 				ugIdFilterList.add(ugFilter.getUserGroupId());
-			List<Long> ugIdObvList = new ArrayList<Long>();
+			List<Long> ugIdObvList = new ArrayList<>();
 			for (UserGroupIbp ugObv : ugObservation)
 				ugIdObvList.add(ugObv.getId());
 			ugIdFilterList = checkUserGroupEligiblity(request, ugIdFilterList, ugFilterData.getAuthorId(), ugFilterData,
@@ -291,10 +296,10 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 			List<UserGroupFilterRule> ugFilterList = ugFilterRuleDao.findAll();
 			List<UserGroupIbp> ugObservation = ugService
 					.getObservationUserGroup(ugObvFilterData.getObservationId().toString());
-			List<Long> ugIdFilterList = new ArrayList<Long>();
+			List<Long> ugIdFilterList = new ArrayList<>();
 			for (UserGroupFilterRule ugFilter : ugFilterList)
 				ugIdFilterList.add(ugFilter.getUserGroupId());
-			List<Long> ugIdObvList = new ArrayList<Long>();
+			List<Long> ugIdObvList = new ArrayList<>();
 			for (UserGroupIbp ugObv : ugObservation)
 				ugIdObvList.add(ugObv.getId());
 
@@ -340,14 +345,14 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 				Boolean result = null;
 				if (ugFilter != null) {
 					result = false;
-					if (ugFilter.getHasSpatialRule()) {
+					if (Boolean.TRUE.equals(ugFilter.getHasSpatialRule())) {
 						isSpartial = checkSpatialRule(ugId, ugFilterData.getLatitude(), ugFilterData.getLongitude());
 						if (isSpartial)
 							result = true;
 						else
 							result = false;
 					}
-					if (ugFilter.getHasUserRule()) {
+					if (Boolean.TRUE.equals(ugFilter.getHasUserRule())) {
 						isUser = checkUserRule(request, ugId, authorId);
 						if (isUser)
 							result = true;
@@ -355,14 +360,14 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 							result = false;
 
 					}
-					if (ugFilter.getHasCreatedOnDateRule()) {
+					if (Boolean.TRUE.equals(ugFilter.getHasCreatedOnDateRule())) {
 						isCreatedOn = checkCreatedOnDateFilter(ugId, ugFilterData.getCreatedOnDate());
 						if (isCreatedOn)
 							result = true;
 						else
 							result = false;
 					}
-					if (ugFilter.getHasObservedOnDateRule()) {
+					if (Boolean.TRUE.equals(ugFilter.getHasObservedOnDateRule())) {
 						isObservedOn = checkObservedOnDateFilter(ugId, ugFilterData.getObservedOnDate());
 						if (isObservedOn)
 							result = true;
@@ -370,7 +375,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 							result = false;
 					}
 
-					if (ugFilter.getHasTaxonomicRule()) {
+					if (Boolean.TRUE.equals((ugFilter.getHasTaxonomicRule()))) {
 						if (ugFilterData.getTaxonomyId() != null) {
 							isTaxo = checkTaxonomicRule(ugId, ugFilterData.getTaxonomyId());
 							if (isTaxo)
@@ -384,9 +389,11 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 
 					}
 
-					if (ugFilter.getHasSpatialRule() == false && ugFilter.getHasTaxonomicRule() == false
-							&& ugFilter.getHasUserRule() == false && ugFilter.getHasCreatedOnDateRule() == false
-							&& ugFilter.getHasObservedOnDateRule() == false)
+					if (Boolean.FALSE.equals(ugFilter.getHasSpatialRule())
+							&& Boolean.FALSE.equals(ugFilter.getHasTaxonomicRule())
+							&& Boolean.FALSE.equals(ugFilter.getHasUserRule())
+							&& Boolean.FALSE.equals(ugFilter.getHasCreatedOnDateRule())
+							&& Boolean.FALSE.equals(ugFilter.getHasObservedOnDateRule()))
 						result = true;
 
 				}
@@ -411,28 +418,28 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 			String reason = "";
 			UserGroupFilterRule ugFilter = ugFilterRuleDao.findByUserGroupId(userGroupId);
 			if (ugFilter != null) {
-				if (ugFilter.getHasSpatialRule()) {
+				if (Boolean.TRUE.equals(ugFilter.getHasSpatialRule())) {
 					Boolean isSpartial = checkSpatialRule(userGroupId, ugObvFilterData.getLatitude(),
 							ugObvFilterData.getLatitude());
 					if (!isSpartial)
 						reason = reason + " Spartial Rule ,";
 				}
-				if (ugFilter.getHasTaxonomicRule()) {
+				if (Boolean.TRUE.equals(ugFilter.getHasTaxonomicRule())) {
 					Boolean isTaxo = checkTaxonomicRule(userGroupId, ugObvFilterData.getTaxonomyId());
 					if (!isTaxo)
 						reason = reason + " taxonomic Rule ,";
 				}
-				if (ugFilter.getHasUserRule()) {
+				if (Boolean.TRUE.equals(ugFilter.getHasUserRule())) {
 					Boolean isUser = checkUserRule(request, userGroupId, authorId);
 					if (!isUser)
 						reason = reason + " User Rule ,";
 				}
-				if (ugFilter.getHasCreatedOnDateRule()) {
+				if (Boolean.TRUE.equals(ugFilter.getHasCreatedOnDateRule())) {
 					Boolean isCreatedOn = checkCreatedOnDateFilter(userGroupId, ugObvFilterData.getCreatedOnDate());
 					if (!isCreatedOn)
 						reason = reason + " CreatedOn Date Rule ,";
 				}
-				if (ugFilter.getHasObservedOnDateRule()) {
+				if (Boolean.TRUE.equals(ugFilter.getHasObservedOnDateRule())) {
 					Boolean isObservedOn = checkObservedOnDateFilter(userGroupId, ugObvFilterData.getObservedOnDate());
 					if (!isObservedOn)
 						reason = reason + " ObservedOn Date Rule ,";
@@ -497,7 +504,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 					ugFilterRuleDao.update(ugFilter);
 					String desc = "User Rule removed";
 					logActivity.logUserGroupActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, userGroupId,
-							userGroupId, "userGroup", ugFilter.getId(), "Removed Filter Rule");
+							userGroupId, "userGroup", ugFilter.getId(), removeFilterRule);
 				}
 			} else if (ugFilterRemove.getFilterName().equalsIgnoreCase("taxonomicRule")) {
 				if (Boolean.TRUE.equals(ugFilter.getHasTaxonomicRule())) {
@@ -505,7 +512,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 					ugtaxonomicDao.delete(taxonomicRule);
 					String desc = "Taxonomic Rule removed: taxonomyId " + taxonomicRule.getTaxonomyId();
 					logActivity.logUserGroupActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, userGroupId,
-							userGroupId, "userGroup", ugFilter.getId(), "Removed Filter Rule");
+							userGroupId, "userGroup", ugFilter.getId(), removeFilterRule);
 				}
 			} else if (ugFilterRemove.getFilterName().equalsIgnoreCase("spatialRule")) {
 				if (ugFilter.getHasSpatialRule()) {
@@ -513,7 +520,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 					ugSpatialDao.delete(spatialData);
 					String desc = "Spatial Rule removed";
 					logActivity.logUserGroupActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, userGroupId,
-							userGroupId, "userGroup", ugFilter.getId(), "Removed Filter Rule");
+							userGroupId, "userGroup", ugFilter.getId(), removeFilterRule);
 				}
 			} else if (ugFilterRemove.getFilterName().equalsIgnoreCase("observedOnDateRule")) {
 				if (ugFilter.getHasObservedOnDateRule()) {
@@ -526,7 +533,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 							: "Presently";
 					String desc = "Observed Date Rule Removed :" + fromDate + " to " + toDate;
 					logActivity.logUserGroupActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, userGroupId,
-							userGroupId, "userGroup", ugFilter.getId(), "Removed Filter Rule");
+							userGroupId, "userGroup", ugFilter.getId(), removeFilterRule);
 				}
 			} else if (ugFilterRemove.getFilterName().equalsIgnoreCase("createdOnDateRule")) {
 				if (ugFilter.getHasCreatedOnDateRule()) {
@@ -539,7 +546,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 							: "Presently";
 					String desc = "CreatedOn Date Rule Removed :" + fromDate + " to " + toDate;
 					logActivity.logUserGroupActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, userGroupId,
-							userGroupId, "userGroup", ugFilter.getId(), "Removed Filter Rule");
+							userGroupId, "userGroup", ugFilter.getId(), removeFilterRule);
 				}
 			}
 
@@ -563,9 +570,9 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 					taxonomicRule.setIsEnabled(ugFilterEnable.getIsEnabled());
 					taxonomicRule = ugtaxonomicDao.update(taxonomicRule);
 					String activityType = Boolean.TRUE.equals(taxonomicRule.getIsEnabled()) ? "Enabled Filter Rule"
-							: "Disabled Filter Rule";
+							: disableFilterRule;
 					String desc = "Taxonomy Rule : taxonomy id " + taxonomicRule.getTaxonomyId() + " is "
-							+ (Boolean.TRUE.equals(taxonomicRule.getIsEnabled()) ? "Enabled" : "disabled");
+							+ (Boolean.TRUE.equals(taxonomicRule.getIsEnabled()) ? enabled : disabled);
 					logActivity.logUserGroupActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, userGroupId,
 							userGroupId, "userGroup", ugFilterRule.getId(), activityType);
 
@@ -576,9 +583,9 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 					spatialData.setIsEnabled(ugFilterEnable.getIsEnabled());
 					ugSpatialDao.update(spatialData);
 					String activityType = Boolean.TRUE.equals(spatialData.getIsEnabled()) ? "Enabled Filter Rule"
-							: "Disabled Filter Rule";
+							: disableFilterRule;
 					String desc = "Spatial rule "
-							+ (Boolean.TRUE.equals(spatialData.getIsEnabled()) ? "Enabled" : "Disabled");
+							+ (Boolean.TRUE.equals(spatialData.getIsEnabled()) ? enabled : disabled);
 					logActivity.logUserGroupActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, userGroupId,
 							userGroupId, "userGroup", ugFilterRule.getId(), activityType);
 
@@ -590,14 +597,14 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 					ugObservedDateDao.update(observerdRule);
 
 					String activityType = Boolean.TRUE.equals(observerdRule.getIsEnabled()) ? "Enabled Filter Rule"
-							: "Disabled Filter Rule";
+							: disableFilterRule;
 
 					String fromDate = observerdRule.getFromDate() != null ? observerdRule.getFromDate().toString()
 							: new Date(0).toString();
 					String toDate = observerdRule.getToDate() != null ? observerdRule.getToDate().toString()
 							: "Presently";
 					String desc = "observerdOn Date Rule Added :" + fromDate + " to " + toDate + " is "
-							+ (Boolean.TRUE.equals(observerdRule.getIsEnabled()) ? "Enabled" : "Disabled");
+							+ (Boolean.TRUE.equals(observerdRule.getIsEnabled()) ? enabled : disabled);
 
 					logActivity.logUserGroupActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, userGroupId,
 							userGroupId, "userGroup", ugFilterRule.getId(), activityType);
@@ -610,14 +617,14 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 					ugCreatedDateDao.update(createdOnRule);
 
 					String activityType = Boolean.TRUE.equals(createdOnRule.getIsEnabled()) ? "Enabled Filter Rule"
-							: "Disabled Filter Rule";
+							: disableFilterRule;
 
 					String fromDate = createdOnRule.getFromDate() != null ? createdOnRule.getFromDate().toString()
 							: new Date(0).toString();
 					String toDate = createdOnRule.getToDate() != null ? createdOnRule.getToDate().toString()
 							: "Presently";
 					String desc = "createdOn Date Rule Added :" + fromDate + " to " + toDate + " is "
-							+ (Boolean.TRUE.equals(createdOnRule.getIsEnabled()) ? "Enabled" : "Disabled");
+							+ (Boolean.TRUE.equals(createdOnRule.getIsEnabled()) ? enabled : disabled);
 
 					logActivity.logUserGroupActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, userGroupId,
 							userGroupId, "userGroup", ugFilterRule.getId(), activityType);
@@ -658,9 +665,11 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 				ugFilter.setHasCreatedOnDateRule(true);
 			ugFilter = ugFilterRuleDao.update(ugFilter);
 
-			if (Boolean.FALSE.equals(ugFilter.getHasSpatialRule()) && ugFilter.getHasTaxonomicRule() == false
-					&& ugFilter.getHasUserRule() == false && ugFilter.getHasCreatedOnDateRule() == false
-					&& ugFilter.getHasObservedOnDateRule() == false)
+			if (Boolean.FALSE.equals(ugFilter.getHasSpatialRule())
+					&& Boolean.FALSE.equals(ugFilter.getHasTaxonomicRule())
+					&& Boolean.FALSE.equals(ugFilter.getHasUserRule())
+					&& Boolean.FALSE.equals(ugFilter.getHasCreatedOnDateRule())
+					&& Boolean.FALSE.equals(ugFilter.getHasObservedOnDateRule()))
 				ugFilterRuleDao.delete(ugFilter);
 
 		} catch (Exception e) {
@@ -766,17 +775,14 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 						ugObv.setObservationId(ugFilterData.getObservationId());
 						ugObv.setUserGroupId(userGroupId);
 						ugService = headers.addUserGroupHeader(ugService, request.getHeader(HttpHeaders.AUTHORIZATION));
-						ugObv = ugService.createObservationUserGroup(ugFilterData.getObservationId().toString(),
+						ugService.createObservationUserGroup(ugFilterData.getObservationId().toString(),
 								userGroupId.toString());
 
 						InputStream in = Thread.currentThread().getContextClassLoader()
 								.getResourceAsStream("config.properties");
 						Properties properties = new Properties();
-						try {
-							properties.load(in);
-						} catch (IOException e) {
-							logger.error(e.getMessage());
-						}
+
+						properties.load(in);
 
 						String adminId = properties.getProperty("portalAdminId");
 
@@ -792,11 +798,9 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 						ugActivity.setUserGroupName(ugIbp.getName());
 						ugActivity.setWebAddress(ugIbp.getWebAddress());
 						ugActivity.setReason("Added Through Filter Rules");
-						try {
-							description = objectMapper.writeValueAsString(ugActivity);
-						} catch (Exception e) {
-							logger.error(e.getMessage());
-						}
+
+						description = objectMapper.writeValueAsString(ugActivity);
+
 						logActivity.LogActivity(token, description, ugFilterData.getObservationId(),
 								ugFilterData.getObservationId(), "observation", userGroupId, "Posted resource", null);
 
@@ -853,11 +857,9 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 						ugActivity.setWebAddress(ugIbp.getWebAddress());
 						ugActivity.setReason("Removed Through Filter Rules "
 								+ findReason(request, userGroupId, ugFilterData.getAuthorId(), ugFilterData));
-						try {
-							description = objectMapper.writeValueAsString(ugActivity);
-						} catch (Exception e) {
-							logger.error(e.getMessage());
-						}
+
+						description = objectMapper.writeValueAsString(ugActivity);
+
 						logActivity.LogActivity(token, description, ugFilterData.getObservationId(),
 								ugFilterData.getObservationId(), "observation", userGroupId, "Removed resoruce", null);
 

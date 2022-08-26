@@ -36,7 +36,7 @@ public class TokenGenerator {
 		u1.setOccupation(user.getOccupation());
 		u1.setPasswordExpired(user.getPasswordExpired());
 		u1.setProfilePic(user.getProfilePic());
-		Set<com.strandls.authentication_utility.model.Role> r1 = new HashSet<com.strandls.authentication_utility.model.Role>();
+		Set<com.strandls.authentication_utility.model.Role> r1 = new HashSet<>();
 		for (Role role : user.getRoles()) {
 			com.strandls.authentication_utility.model.Role r = new com.strandls.authentication_utility.model.Role();
 			r.setAuthority(role.getAuthority());
@@ -49,7 +49,7 @@ public class TokenGenerator {
 		u1.setSendPushNotification(user.getSendPushNotification());
 		u1.setSexType(user.getSexType());
 
-		Set<com.strandls.authentication_utility.model.FirebaseTokens> fb = new HashSet<com.strandls.authentication_utility.model.FirebaseTokens>();
+		Set<com.strandls.authentication_utility.model.FirebaseTokens> fb = new HashSet<>();
 		u1.setTokens(fb);
 		u1.setUserName(user.getUserName());
 

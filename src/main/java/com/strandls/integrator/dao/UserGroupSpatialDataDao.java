@@ -15,7 +15,7 @@ import com.strandls.integrator.util.AbstractDAO;
 
 public class UserGroupSpatialDataDao extends AbstractDAO<UserGroupSpatialData, Long> {
 
-	private final Logger logger = LoggerFactory.getLogger(UserGroupFilterRuleDao.class);
+	private final Logger logger = LoggerFactory.getLogger(UserGroupSpatialDataDao.class);
 
 	/**
 	 * @param sessionFactory
