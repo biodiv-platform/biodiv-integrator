@@ -80,7 +80,7 @@ public class IntegratorController {
 		}
 	}
 
-	@GET
+	@POST
 	@Path(ApiConstants.FILTERRULE + ApiConstants.GROUPELIGIBLE)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
