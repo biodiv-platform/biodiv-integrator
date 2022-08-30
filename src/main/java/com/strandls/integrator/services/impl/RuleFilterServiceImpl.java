@@ -241,6 +241,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 				}
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			logger.error(e.getMessage());
 		}
 
@@ -324,6 +325,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 				}
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			logger.error(e.getMessage());
 		}
 
