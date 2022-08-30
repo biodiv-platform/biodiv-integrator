@@ -205,16 +205,19 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 	public void bgPostingUG(HttpServletRequest request, UserGroupObvRuleData ugFilterData) {
 
 		try {
-
+			List<UserGroupIbp> ugObservation  = new ArrayList<>();
 			List<UserGroupFilterRule> ugFilterList = ugFilterRuleDao.findAll();
-			List<UserGroupIbp> ugObservation = ugService
+			ugObservation = ugService
 					.getObservationUserGroup(ugFilterData.getObservationId().toString());
 			List<Long> ugIdFilterList = new ArrayList<>();
 			for (UserGroupFilterRule ugFilter : ugFilterList)
 				ugIdFilterList.add(ugFilter.getUserGroupId());
 			List<Long> ugIdObvList = new ArrayList<>();
-			for (UserGroupIbp ugObv : ugObservation)
-				ugIdObvList.add(ugObv.getId());
+			if(ugObservation!=null && !ugObservation.isEmpty()) {
+				for (UserGroupIbp ugObv : ugObservation)
+					ugIdObvList.add(ugObv.getId());
+			}
+			
 			ugIdFilterList = checkUserGroupEligiblity(request, ugIdFilterList, ugFilterData.getAuthorId(), ugFilterData,
 					false);
 			for (Long ugid : ugIdFilterList) {
@@ -225,10 +228,9 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 					ugObv.setUserGroupId(ugid);
 
 					ugService = headers.addUserGroupHeader(ugService, request.getHeader(HttpHeaders.AUTHORIZATION));
-					ugObv = ugService.createObservationUserGroup(ugFilterData.getObservationId().toString(),
+					UserGroupObservation UgObvData = ugService.createObservationUserGroup(ugFilterData.getObservationId().toString(),
 							ugid.toString());
-
-					if (ugObv != null) {
+					if (UgObvData!= null) {
 						try {
 							logUgActivityDescrption(ugid, "observation", "Posted resource",
 									"Added Through Filter Rules", ugFilterData);
@@ -301,11 +303,10 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 			for (UserGroupFilterRule ugFilter : ugFilterList)
 				ugIdFilterList.add(ugFilter.getUserGroupId());
 			List<Long> ugIdObvList = new ArrayList<>();
+			if(ugObservation!=null && !ugObservation.isEmpty()) {
 			for (UserGroupIbp ugObv : ugObservation)
 				ugIdObvList.add(ugObv.getId());
-
-			ugIdObvList = checkUserGroupEligiblity(request, ugIdObvList, ugObvFilterData.getAuthorId(), ugObvFilterData,
-					true);
+			}
 
 			for (Long ugid : ugIdObvList) {
 				if (ugid != null && ugIdFilterList.contains(ugid)) {
@@ -344,7 +345,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 				Boolean isUser = false;
 				Boolean isCreatedOn = false;
 				Boolean isObservedOn = false;
-				Boolean result = null;
+				Boolean result = true;
 				if (ugFilter != null) {
 					result = false;
 					if (Boolean.TRUE.equals(ugFilter.getHasSpatialRule())) {
