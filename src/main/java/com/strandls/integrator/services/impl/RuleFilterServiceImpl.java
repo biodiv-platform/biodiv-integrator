@@ -356,15 +356,14 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 				Boolean isObservedOn = false;
 				Boolean result = true;
 				if (ugFilter != null) {
-					result = false;
-					if (Boolean.TRUE.equals(ugFilter.getHasSpatialRule())) {
+					if (Boolean.TRUE.equals(ugFilter.getHasSpatialRule())&& Boolean.TRUE.equals(result)) {
 						isSpartial = checkSpatialRule(ugId, ugFilterData.getLatitude(), ugFilterData.getLongitude());
 						if (isSpartial)
 							result = true;
 						else
 							result = false;
 					}
-					if (Boolean.TRUE.equals(ugFilter.getHasUserRule())) {
+					if (Boolean.TRUE.equals(ugFilter.getHasUserRule()) && Boolean.TRUE.equals(result)) {
 						isUser = checkUserRule(request, ugId, authorId);
 						if (isUser)
 							result = true;
@@ -372,14 +371,14 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 							result = false;
 
 					}
-					if (Boolean.TRUE.equals(ugFilter.getHasCreatedOnDateRule())) {
+					if (Boolean.TRUE.equals(ugFilter.getHasCreatedOnDateRule()) && Boolean.TRUE.equals(result)) {
 						isCreatedOn = checkCreatedOnDateFilter(ugId, ugFilterData.getCreatedOnDate());
 						if (isCreatedOn)
 							result = true;
 						else
 							result = false;
 					}
-					if (Boolean.TRUE.equals(ugFilter.getHasObservedOnDateRule())) {
+					if (Boolean.TRUE.equals(ugFilter.getHasObservedOnDateRule()) && Boolean.TRUE.equals(result)) {
 						isObservedOn = checkObservedOnDateFilter(ugId, ugFilterData.getObservedOnDate());
 						if (isObservedOn)
 							result = true;
@@ -387,7 +386,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 							result = false;
 					}
 
-					if (Boolean.TRUE.equals((ugFilter.getHasTaxonomicRule()))) {
+					if (Boolean.TRUE.equals((ugFilter.getHasTaxonomicRule())) && Boolean.TRUE.equals(result)) {
 						if (ugFilterData.getTaxonomyId() != null) {
 							isTaxo = checkTaxonomicRule(ugId, ugFilterData.getTaxonomyId());
 							if (isTaxo)
