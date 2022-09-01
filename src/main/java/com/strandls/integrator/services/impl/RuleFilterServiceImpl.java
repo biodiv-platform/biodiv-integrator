@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -220,29 +221,37 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 						ugIdObvList.add(ugObv.getId());
 			}
 
+//			filter out eligible ugIds
 			ugIdFilterList = checkUserGroupEligiblity(request, ugIdFilterList, ugFilterData.getAuthorId(), ugFilterData,
 					false);
 
-			UserGroupObvFilterData UserGroupObv = new UserGroupObvFilterData();
-			UserGroupObv.setAuthorId(UserGroupObv.getAuthorId());
-			UserGroupObv.setCreatedOnDate(UserGroupObv.getCreatedOnDate());
-			UserGroupObv.setLatitude(UserGroupObv.getLatitude());
-			UserGroupObv.setLongitude(UserGroupObv.getLongitude());
-			UserGroupObv.setObservationId(UserGroupObv.getObservationId());
-			UserGroupObv.setObservedOnDate(UserGroupObv.getObservedOnDate());
-			UserGroupObv.setTaxonomyId(UserGroupObv.getTaxonomyId());
-			UserGroupMappingCreateData payload = new UserGroupMappingCreateData();
-			payload.setMailData(null);
-			payload.setUgFilterData(UserGroupObv);
-			payload.setUserGroups(ugIdFilterList);
-			List<Long> UgObvData = ugService
-					.createObservationUserGroupMapping(ugFilterData.getObservationId().toString(), payload);
+//			filter out all the currently mapped ugIds
+			ugIdFilterList = ugIdFilterList.isEmpty() ? ugIdFilterList
+					: ugIdFilterList.stream().filter(ugId -> !ugIdObvList.contains(ugId)).collect(Collectors.toList());
 
-			if (UgObvData != null) {
-				for (Long ugid : UgObvData)
-					logUgActivityDescrption(ugid, "observation", "Posted resource", "Added Through Filter Rules",
-							ugFilterData);
+			if (!ugIdFilterList.isEmpty()) {
+				UserGroupObvFilterData UserGroupObv = new UserGroupObvFilterData();
+				UserGroupObv.setAuthorId(UserGroupObv.getAuthorId());
+				UserGroupObv.setCreatedOnDate(UserGroupObv.getCreatedOnDate());
+				UserGroupObv.setLatitude(UserGroupObv.getLatitude());
+				UserGroupObv.setLongitude(UserGroupObv.getLongitude());
+				UserGroupObv.setObservationId(UserGroupObv.getObservationId());
+				UserGroupObv.setObservedOnDate(UserGroupObv.getObservedOnDate());
+				UserGroupObv.setTaxonomyId(UserGroupObv.getTaxonomyId());
+				UserGroupMappingCreateData payload = new UserGroupMappingCreateData();
+				payload.setMailData(null);
+				payload.setUgFilterData(UserGroupObv);
+				payload.setUserGroups(ugIdFilterList);
+				List<Long> UgObvData = ugService
+						.createObservationUserGroupMapping(ugFilterData.getObservationId().toString(), payload);
+
+				if (UgObvData != null) {
+					for (Long ugid : UgObvData)
+						logUgActivityDescrption(ugid, "observation", "Posted resource", "Added Through Filter Rules",
+								ugFilterData);
+				}
 			}
+
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
@@ -299,10 +308,10 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 			List<UserGroupFilterRule> ugFilterList = ugFilterRuleDao.findAll();
 			List<UserGroupIbp> ugObservation = ugService
 					.getObservationUserGroup(ugObvFilterData.getObservationId().toString());
-			List<Long> ugIdFilterList = new ArrayList<>();
+			List<Long> ugIdFilterList = new ArrayList<>();// all grp that has grp rules;
 			for (UserGroupFilterRule ugFilter : ugFilterList)
 				ugIdFilterList.add(ugFilter.getUserGroupId());
-			List<Long> ugIdObvList = new ArrayList<>();
+			List<Long> ugIdObvList = new ArrayList<>();// mapped observation ug list
 			if (ugObservation != null && !ugObservation.isEmpty()) {
 				for (UserGroupIbp ugObv : ugObservation)
 					if (ugObv != null && ugObv.getId() != null) {
@@ -311,8 +320,11 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 
 			}
 
+			List<Long> eligibleUgList = checkUserGroupEligiblity(request, ugIdObvList, ugObvFilterData.getAuthorId(),
+					ugObvFilterData, false);
+
 			for (Long ugid : ugIdObvList) {
-				if (ugid != null && ugIdFilterList.contains(ugid)) {
+				if (ugid != null && ugIdFilterList.contains(ugid) && !eligibleUgList.contains(ugid)) {
 
 					ugService = headers.addUserGroupHeader(ugService, request.getHeader(HttpHeaders.AUTHORIZATION));
 					ugService.removeObservationUserGroup(ugObvFilterData.getObservationId().toString(),
