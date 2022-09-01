@@ -41,7 +41,9 @@ import com.strandls.user.ApiException;
 import com.strandls.user.controller.UserServiceApi;
 import com.strandls.userGroup.controller.UserGroupSerivceApi;
 import com.strandls.userGroup.pojo.UserGroupIbp;
+import com.strandls.userGroup.pojo.UserGroupMappingCreateData;
 import com.strandls.userGroup.pojo.UserGroupObservation;
+import com.strandls.userGroup.pojo.UserGroupObvFilterData;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -205,45 +207,43 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 	public void bgPostingUG(HttpServletRequest request, UserGroupObvRuleData ugFilterData) {
 
 		try {
-			List<UserGroupIbp> ugObservation  = new ArrayList<>();
+			List<UserGroupIbp> ugObservation = new ArrayList<>();
 			List<UserGroupFilterRule> ugFilterList = ugFilterRuleDao.findAll();
-			ugObservation = ugService
-					.getObservationUserGroup(ugFilterData.getObservationId().toString());
+			ugObservation = ugService.getObservationUserGroup(ugFilterData.getObservationId().toString());
 			List<Long> ugIdFilterList = new ArrayList<>();
 			for (UserGroupFilterRule ugFilter : ugFilterList)
 				ugIdFilterList.add(ugFilter.getUserGroupId());
 			List<Long> ugIdObvList = new ArrayList<>();
-			if(ugObservation!=null && !ugObservation.isEmpty()) {
+			if (ugObservation != null && !ugObservation.isEmpty()) {
 				for (UserGroupIbp ugObv : ugObservation)
-					ugIdObvList.add(ugObv.getId());
+					if (ugObv != null && ugObv.getId() != null)
+						ugIdObvList.add(ugObv.getId());
 			}
-			
+
 			ugIdFilterList = checkUserGroupEligiblity(request, ugIdFilterList, ugFilterData.getAuthorId(), ugFilterData,
 					false);
-			for (Long ugid : ugIdFilterList) {
-				if (ugid != null && !ugIdObvList.contains(ugid)) {
 
-					UserGroupObservation ugObv = new UserGroupObservation();
-					ugObv.setObservationId(ugFilterData.getObservationId());
-					ugObv.setUserGroupId(ugid);
+			UserGroupObvFilterData UserGroupObv = new UserGroupObvFilterData();
+			UserGroupObv.setAuthorId(UserGroupObv.getAuthorId());
+			UserGroupObv.setCreatedOnDate(UserGroupObv.getCreatedOnDate());
+			UserGroupObv.setLatitude(UserGroupObv.getLatitude());
+			UserGroupObv.setLongitude(UserGroupObv.getLongitude());
+			UserGroupObv.setObservationId(UserGroupObv.getObservationId());
+			UserGroupObv.setObservedOnDate(UserGroupObv.getObservedOnDate());
+			UserGroupObv.setTaxonomyId(UserGroupObv.getTaxonomyId());
+			UserGroupMappingCreateData payload = new UserGroupMappingCreateData();
+			payload.setMailData(null);
+			payload.setUgFilterData(UserGroupObv);
+			payload.setUserGroups(ugIdFilterList);
+			List<Long> UgObvData = ugService
+					.createObservationUserGroupMapping(ugFilterData.getObservationId().toString(), payload);
 
-					ugService = headers.addUserGroupHeader(ugService, request.getHeader(HttpHeaders.AUTHORIZATION));
-					UserGroupObservation UgObvData = ugService.createObservationUserGroup(ugFilterData.getObservationId().toString(),
-							ugid.toString());
-					if (UgObvData!= null) {
-						try {
-							logUgActivityDescrption(ugid, "observation", "Posted resource",
-									"Added Through Filter Rules", ugFilterData);
-
-						} catch (Exception e) {
-							logger.error(e.getMessage());
-						}
-					}
-
-				}
+			if (UgObvData != null) {
+				for (Long ugid : UgObvData)
+					logUgActivityDescrption(ugid, "observation", "Posted resource", "Added Through Filter Rules",
+							ugFilterData);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 			logger.error(e.getMessage());
 		}
 
@@ -303,9 +303,12 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 			for (UserGroupFilterRule ugFilter : ugFilterList)
 				ugIdFilterList.add(ugFilter.getUserGroupId());
 			List<Long> ugIdObvList = new ArrayList<>();
-			if(ugObservation!=null && !ugObservation.isEmpty()) {
-			for (UserGroupIbp ugObv : ugObservation)
-				ugIdObvList.add(ugObv.getId());
+			if (ugObservation != null && !ugObservation.isEmpty()) {
+				for (UserGroupIbp ugObv : ugObservation)
+					if (ugObv != null && ugObv.getId() != null) {
+						ugIdObvList.add(ugObv.getId());
+					}
+
 			}
 
 			for (Long ugid : ugIdObvList) {
@@ -315,18 +318,12 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 					ugService.removeObservationUserGroup(ugObvFilterData.getObservationId().toString(),
 							ugid.toString());
 
-					try {
-						logUgActivityDescrption(ugid, "observation", "Removed resoruce", "Removed Through Filter Rules",
-								ugObvFilterData);
-
-					} catch (Exception e) {
-						logger.error(e.getMessage());
-					}
+					logUgActivityDescrption(ugid, "observation", "Removed resoruce", "Removed Through Filter Rules",
+							ugObvFilterData);
 
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 			logger.error(e.getMessage());
 		}
 
