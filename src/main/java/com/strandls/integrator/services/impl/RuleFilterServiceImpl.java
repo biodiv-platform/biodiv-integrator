@@ -322,7 +322,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 			}
 
 			List<Long> eligibleUgList = checkUserGroupEligiblity(request, ugIdObvList, ugObvFilterData.getAuthorId(),
-					ugObvFilterData, false);
+					ugObvFilterData, true);
 
 			for (Long ugid : ugIdObvList) {
 				if (ugid != null && ugIdFilterList.contains(ugid) && !eligibleUgList.contains(ugid)) {
