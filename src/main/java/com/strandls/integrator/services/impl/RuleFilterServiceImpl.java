@@ -242,6 +242,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 				payload.setMailData(null);
 				payload.setUgFilterData(UserGroupObv);
 				payload.setUserGroups(ugIdFilterList);
+				payload.setHasActivity(false);
 				List<Long> UgObvData = ugService
 						.createObservationUserGroupMapping(ugFilterData.getObservationId().toString(), payload);
 
@@ -356,7 +357,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 				Boolean isObservedOn = false;
 				Boolean result = true;
 				if (ugFilter != null) {
-					if (Boolean.TRUE.equals(ugFilter.getHasSpatialRule())&& Boolean.TRUE.equals(result)) {
+					if (Boolean.TRUE.equals(ugFilter.getHasSpatialRule()) && Boolean.TRUE.equals(result)) {
 						isSpartial = checkSpatialRule(ugId, ugFilterData.getLatitude(), ugFilterData.getLongitude());
 						if (isSpartial)
 							result = true;
