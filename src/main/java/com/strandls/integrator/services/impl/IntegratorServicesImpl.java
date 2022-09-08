@@ -10,7 +10,7 @@ import org.pac4j.core.profile.CommonProfile;
 
 import com.google.inject.Inject;
 import com.strandls.authentication_utility.util.AuthUtil;
-import com.strandls.integrator.pojo.response.UserProfileData;
+import com.strandls.integrator.pojo.UserProfileData;
 import com.strandls.integrator.services.IntegratorServices;
 import com.strandls.user.ApiException;
 import com.strandls.user.controller.UserServiceApi;
