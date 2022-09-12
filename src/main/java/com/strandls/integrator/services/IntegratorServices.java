@@ -5,7 +5,7 @@ package com.strandls.integrator.services;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.strandls.integrator.pojo.response.UserProfileData;
+import com.strandls.integrator.pojo.UserProfileData;
 import com.strandls.user.ApiException;
 
 /**

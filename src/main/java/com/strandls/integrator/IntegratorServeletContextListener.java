@@ -28,9 +28,13 @@ import com.google.inject.Injector;
 import com.google.inject.Scopes;
 import com.google.inject.servlet.GuiceServletContextListener;
 import com.google.inject.servlet.ServletModule;
+import com.strandls.activity.controller.ActivitySerivceApi;
 import com.strandls.integrator.controllers.IntegratorControllerModule;
+import com.strandls.integrator.dao.IntegratorDaoModule;
 import com.strandls.integrator.services.impl.IntegratorServiceModule;
+import com.strandls.taxonomy.controllers.TaxonomyTreeServicesApi;
 import com.strandls.user.controller.UserServiceApi;
+import com.strandls.userGroup.controller.UserGroupSerivceApi;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.PrecisionModel;
 
@@ -72,12 +76,15 @@ public class IntegratorServeletContextListener extends GuiceServletContextListen
 				props.put("jersey.config.server.wadl.disableWadl", "true");
 
 				bind(UserServiceApi.class).in(Scopes.SINGLETON);
+				bind(ActivitySerivceApi.class).in(Scopes.SINGLETON);
+				bind(TaxonomyTreeServicesApi.class).in(Scopes.SINGLETON);
+				bind(UserGroupSerivceApi.class).in(Scopes.SINGLETON);
 				bind(SessionFactory.class).toInstance(sessionFactory);
 				bind(ServletContainer.class).in(Scopes.SINGLETON);
 
 				serve("/api/*").with(ServletContainer.class, props);
 			}
-		}, new IntegratorControllerModule(), new IntegratorServiceModule());
+		}, new IntegratorControllerModule(), new IntegratorServiceModule(), new IntegratorDaoModule());
 
 	}
 
