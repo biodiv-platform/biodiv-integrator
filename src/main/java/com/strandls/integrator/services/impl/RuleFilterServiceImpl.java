@@ -142,7 +142,8 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 //	check user rule filter
 	private Boolean checkUserRule(HttpServletRequest request, Long userGroupId, Long userId) {
 		try {
-			ugService = headers.addUserGroupHeader(ugService, request.getHeader(HttpHeaders.AUTHORIZATION));
+			String token = tokenGenerator.generate(userService.getUser(userId.toString()));
+			ugService = headers.addUserGroupHeader(ugService, token);
 			return ugService.checkUserMember(userGroupId.toString());
 		} catch (Exception e) {
 			logger.error(e.getMessage());
