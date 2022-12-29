@@ -249,7 +249,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 
 				if (UgObvData != null) {
 					for (Long ugid : UgObvData)
-						logUgActivityDescrption(ugid, "observation", "Posted resource", "Added Through Filter Rules",
+						logUgActivityDescrption(ugid, "observation", "Posted resource", "via filter rules",
 								ugFilterData);
 				}
 			}
@@ -810,7 +810,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 						ugActivity.setUserGroupId(ugIbp.getId());
 						ugActivity.setUserGroupName(ugIbp.getName());
 						ugActivity.setWebAddress(ugIbp.getWebAddress());
-						ugActivity.setReason("Added Through Filter Rules");
+						ugActivity.setReason("via filter rules");
 
 						description = objectMapper.writeValueAsString(ugActivity);
 
