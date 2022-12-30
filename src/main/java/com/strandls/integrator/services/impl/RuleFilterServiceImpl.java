@@ -332,7 +332,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 					ugService.removeObservationUserGroup(ugObvFilterData.getObservationId().toString(),
 							ugid.toString());
 
-					logUgActivityDescrption(ugid, "observation", "Removed resoruce", "Removed Through Filter Rules",
+					logUgActivityDescrption(ugid, "observation", "Removed resource", "via filter rules",
 							ugObvFilterData);
 
 				}
