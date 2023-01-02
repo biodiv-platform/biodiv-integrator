@@ -95,6 +95,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 	private String enabled = "Enabled";
 	private String disabled = "Disabled";
 	private String disableFilterRule = "Disabled Filter Rule";
+	private String viaFilterRules = "via filter rules";
 
 	private Boolean checkObservedOnDateFilter(Long userGroupId, Date observedOnDate) {
 		List<UserGroupObservedonDateRule> observedDateData = ugObservedDateDao.findByUserGroupIdIsEnabled(userGroupId);
@@ -249,8 +250,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 
 				if (UgObvData != null) {
 					for (Long ugid : UgObvData)
-						logUgActivityDescrption(ugid, "observation", "Posted resource", "via filter rules",
-								ugFilterData);
+						logUgActivityDescrption(ugid, "observation", "Posted resource", viaFilterRules, ugFilterData);
 				}
 			}
 
@@ -332,8 +332,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 					ugService.removeObservationUserGroup(ugObvFilterData.getObservationId().toString(),
 							ugid.toString());
 
-					logUgActivityDescrption(ugid, "observation", "Removed resource", "via filter rules",
-							ugObvFilterData);
+					logUgActivityDescrption(ugid, "observation", "Removed resource", viaFilterRules, ugObvFilterData);
 
 				}
 			}
@@ -810,7 +809,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 						ugActivity.setUserGroupId(ugIbp.getId());
 						ugActivity.setUserGroupName(ugIbp.getName());
 						ugActivity.setWebAddress(ugIbp.getWebAddress());
-						ugActivity.setReason("via filter rules");
+						ugActivity.setReason(viaFilterRules);
 
 						description = objectMapper.writeValueAsString(ugActivity);
 
