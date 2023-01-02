@@ -95,6 +95,8 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 	private String enabled = "Enabled";
 	private String disabled = "Disabled";
 	private String disableFilterRule = "Disabled Filter Rule";
+	private String viaFilterRules = "via filter rules";
+	private String observationModule = "observation";
 
 	private Boolean checkObservedOnDateFilter(Long userGroupId, Date observedOnDate) {
 		List<UserGroupObservedonDateRule> observedDateData = ugObservedDateDao.findByUserGroupIdIsEnabled(userGroupId);
@@ -249,7 +251,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 
 				if (UgObvData != null) {
 					for (Long ugid : UgObvData)
-						logUgActivityDescrption(ugid, "observation", "Posted resource", "Added Through Filter Rules",
+						logUgActivityDescrption(ugid, observationModule, "Posted resource", viaFilterRules,
 								ugFilterData);
 				}
 			}
@@ -332,7 +334,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 					ugService.removeObservationUserGroup(ugObvFilterData.getObservationId().toString(),
 							ugid.toString());
 
-					logUgActivityDescrption(ugid, "observation", "Removed resoruce", "Removed Through Filter Rules",
+					logUgActivityDescrption(ugid, observationModule, "Removed resource", viaFilterRules,
 							ugObvFilterData);
 
 				}
@@ -810,12 +812,13 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 						ugActivity.setUserGroupId(ugIbp.getId());
 						ugActivity.setUserGroupName(ugIbp.getName());
 						ugActivity.setWebAddress(ugIbp.getWebAddress());
-						ugActivity.setReason("Added Through Filter Rules");
+						ugActivity.setReason(viaFilterRules);
 
 						description = objectMapper.writeValueAsString(ugActivity);
 
 						logActivity.LogActivity(token, description, ugFilterData.getObservationId(),
-								ugFilterData.getObservationId(), "observation", userGroupId, "Posted resource", null);
+								ugFilterData.getObservationId(), observationModule, userGroupId, "Posted resource",
+								null);
 
 					}
 				}
@@ -874,7 +877,8 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 						description = objectMapper.writeValueAsString(ugActivity);
 
 						logActivity.LogActivity(token, description, ugFilterData.getObservationId(),
-								ugFilterData.getObservationId(), "observation", userGroupId, "Removed resoruce", null);
+								ugFilterData.getObservationId(), observationModule, userGroupId, "Removed resoruce",
+								null);
 
 					}
 
