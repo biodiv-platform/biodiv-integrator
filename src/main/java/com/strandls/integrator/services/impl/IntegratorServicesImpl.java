@@ -31,12 +31,12 @@ public class IntegratorServicesImpl implements IntegratorServices {
 	@Override
 	public UserProfileData fetchUserProfileById(HttpServletRequest request, String userId) throws ApiException {
 
-		User user = userServiceApi.getUser(userId);
+		User user = userServiceApi.getUser(request, userId);
 		UserProfileData userProfile = new UserProfileData(user);
-		
+
 		// There is no user logged in
 		String header = request.getHeader(HttpHeaders.AUTHORIZATION);
-		if (header == null || !header.startsWith("Bearer ")) { 
+		if (header == null || !header.startsWith("Bearer ")) {
 			userProfile.setMobileNumber(null);
 			userProfile.setEmail(null);
 			return userProfile;
@@ -44,25 +44,25 @@ public class IntegratorServicesImpl implements IntegratorServices {
 
 		// User is logged in but token is expired or invalid
 		CommonProfile profile = AuthUtil.getProfileFromRequest(request);
-		if(profile == null) {
+		if (profile == null) {
 			userProfile.setMobileNumber(null);
 			userProfile.setEmail(null);
 			return userProfile;
 		}
-		
+
 		// Check for admin
 		boolean isProfileAdmin = false;
 		JSONArray roles = (JSONArray) profile.getAttribute("roles");
 		if (roles.contains("ROLE_ADMIN")) {
 			isProfileAdmin = true;
 		}
-		
+
 		// If user profile is not admin and trying to see somebody else profile
-		if(!isProfileAdmin && !profile.getId().equals(userId)) {
+		if (!isProfileAdmin && !profile.getId().equals(userId)) {
 			userProfile.setEmail(null);
 			userProfile.setMobileNumber(null);
 		}
-		
+
 		return userProfile;
 
 	}
