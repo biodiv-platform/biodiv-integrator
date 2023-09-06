@@ -12,11 +12,13 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
 
+import org.pac4j.core.profile.CommonProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.strandls.activity.pojo.UserGroupActivity;
+import com.strandls.authentication_utility.util.AuthUtil;
 import com.strandls.integrator.Headers;
 import com.strandls.integrator.dao.UserGroupCreatedOnDateRuleDao;
 import com.strandls.integrator.dao.UserGroupFilterRuleDao;
@@ -50,6 +52,8 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.PrecisionModel;
 import com.vividsolutions.jts.io.WKTReader;
+
+import net.minidev.json.JSONArray;
 
 public class RuleFilterServiceImpl implements RuleFilterService {
 
@@ -91,12 +95,16 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 	@Inject
 	private Headers headers;
 
+	@Inject
+	private UserGroupCreatedOnDateRuleDao userGroupCreatedOnDateRuleDao;
+
 	private String removeFilterRule = "Removed Filter Rule";
 	private String enabled = "Enabled";
 	private String disabled = "Disabled";
 	private String disableFilterRule = "Disabled Filter Rule";
 	private String viaFilterRules = "via filter rules";
 	private String observationModule = "observation";
+	private static final String roleAdmin = "ROLE_ADMIN";
 
 	private Boolean checkObservedOnDateFilter(Long userGroupId, Date observedOnDate) {
 		List<UserGroupObservedonDateRule> observedDateData = ugObservedDateDao.findByUserGroupIdIsEnabled(userGroupId);
@@ -890,6 +898,26 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 			logger.error(e.getMessage());
 		}
 
+	}
+
+	public Boolean deleteFilterRules(HttpServletRequest request, Long userGroupId) {
+		CommonProfile profile = AuthUtil.getProfileFromRequest(request);
+		JSONArray roles = (JSONArray) profile.getAttribute("roles");
+
+		try {
+			if (roles.contains(roleAdmin)) {
+				userGroupCreatedOnDateRuleDao.bulkDeleteCreatedOnDateRules(userGroupId);
+				ugObservedDateDao.bulkDeleteObservedOnDateRules(userGroupId);
+				ugSpatialDao.bulkDeleteSpatiaDataRules(userGroupId);
+				ugtaxonomicDao.bulkDeleteTaxonomicRules(userGroupId);
+				ugFilterRuleDao.bulkDeleteUsergRoupFilterRules(userGroupId);
+				return true;
+			}
+
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+		return false;
 	}
 
 }

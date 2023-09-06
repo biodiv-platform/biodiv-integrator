@@ -6,6 +6,7 @@ import javax.inject.Inject;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +64,28 @@ public class UserGroupCreatedOnDateRuleDao extends AbstractDAO<UserGroupCreatedO
 			session.close();
 		}
 		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	public void bulkDeleteCreatedOnDateRules(Long userGroupId) {
+		Session session = sessionFactory.openSession();
+		Transaction transaction = null;
+		String qry = "delete from ug_obv_created_date_rule where ug_id = :id";
+		try {
+
+			transaction = session.beginTransaction();
+			Query<UserGroupCreatedOnDateRule> query = session.createNativeQuery(qry);
+			query.setParameter("id", userGroupId);
+			query.executeUpdate();
+			transaction.commit();
+		} catch (Exception e) {
+			if (transaction != null) {
+				transaction.rollback();
+			}
+			logger.error(e.getMessage());
+		} finally {
+			session.close();
+		}
 	}
 
 }

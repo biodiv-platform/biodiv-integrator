@@ -6,10 +6,12 @@ import javax.inject.Inject;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.strandls.integrator.pojo.UserGroupObservedonDateRule;
 import com.strandls.integrator.pojo.UserGroupSpatialData;
 import com.strandls.integrator.util.AbstractDAO;
 
@@ -41,15 +43,15 @@ public class UserGroupSpatialDataDao extends AbstractDAO<UserGroupSpatialData, L
 
 	public List<UserGroupSpatialData> findByUserGroupIdIsEnabled(Long userGroupId) {
 		String qry = "from UserGroupSpatialData where userGroupId = :ugId and isEnabled = true";
-		return findUserGroupByQuery(userGroupId,qry);
+		return findUserGroupByQuery(userGroupId, qry);
 
 	}
 
 	public List<UserGroupSpatialData> findAllByUserGroupId(Long userGroupId) {
 		String qry = "from UserGroupSpatialData where userGroupId = :ugId";
-		return findUserGroupByQuery(userGroupId,qry);
+		return findUserGroupByQuery(userGroupId, qry);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private List<UserGroupSpatialData> findUserGroupByQuery(Long userGroupId, String qry) {
 		Session session = sessionFactory.openSession();
@@ -64,6 +66,28 @@ public class UserGroupSpatialDataDao extends AbstractDAO<UserGroupSpatialData, L
 			session.close();
 		}
 		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	public void bulkDeleteSpatiaDataRules(Long userGroupId) {
+		Session session = sessionFactory.openSession();
+		Transaction transaction = null;
+		String qry = "delete from ug_spatial_data where ug_id = :id";
+		try {
+
+			transaction = session.beginTransaction();
+			Query<UserGroupSpatialData> query = session.createNativeQuery(qry);
+			query.setParameter("id", userGroupId);
+			query.executeUpdate();
+			transaction.commit();
+		} catch (Exception e) {
+			if (transaction != null) {
+				transaction.rollback();
+			}
+			logger.error(e.getMessage());
+		} finally {
+			session.close();
+		}
 	}
 
 }

@@ -38,4 +38,6 @@ public interface RuleFilterService {
 	List<Long> checkUserGroupEligiblity(HttpServletRequest request, List<Long> userGroupIds, Long authorId,
 			UserGroupObvRuleData ugFilterData, Boolean isPosting);
 
+	public Boolean deleteFilterRules(HttpServletRequest request, Long userGroupId);
+
 }

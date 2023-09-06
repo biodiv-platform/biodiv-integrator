@@ -8,6 +8,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -247,6 +248,28 @@ public class IntegratorController {
 			Long userGroupId = Long.parseLong(groupId);
 			ShowFilterRule result = ruleFilterService.changeUgFilter(request, userGroupId, ugFilterInputData);
 			if (result != null)
+				return Response.status(Status.OK).entity(result).build();
+			return Response.status(Status.NOT_ACCEPTABLE).build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+	}
+
+	@DELETE
+	@Path(ApiConstants.DELETERULES + "/{userGroupId}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ValidateUser
+	@ApiOperation(value = "delete all filter rules for a group", notes = "Deletes all the filter rules", response = String.class)
+	@ApiResponses(value = { @ApiResponse(code = 400, message = "Group not found", response = String.class) })
+
+	public Response deleteFilterRules(@Context HttpServletRequest request, @PathParam("userGroupId") String groupId) {
+		try {
+
+			Long userGroupId = Long.parseLong(groupId);
+			Boolean result = ruleFilterService.deleteFilterRules(request, userGroupId);
+			if (result)
 				return Response.status(Status.OK).entity(result).build();
 			return Response.status(Status.NOT_ACCEPTABLE).build();
 		} catch (Exception e) {
