@@ -38,4 +38,10 @@ public interface RuleFilterService {
 	List<Long> checkUserGroupEligiblity(HttpServletRequest request, List<Long> userGroupIds, Long authorId,
 			UserGroupObvRuleData ugFilterData, Boolean isPosting);
 
+	public void bgPostingUGforDatatable(HttpServletRequest request, UserGroupObvRuleData ugFilterData);
+
+	public void bgFiltureRuleForDatatable(HttpServletRequest request, UserGroupObvRuleData ugObvFilterData);
+
+	public void bgUnPostingUGForDatatable(HttpServletRequest request, UserGroupObvRuleData ugObvFilterData);
+
 }

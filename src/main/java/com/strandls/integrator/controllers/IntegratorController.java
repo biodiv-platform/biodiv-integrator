@@ -122,6 +122,27 @@ public class IntegratorController {
 	}
 
 	@POST
+	@Path(ApiConstants.FILTERRULE + "/datatable")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+
+	@ValidateUser
+
+	@ApiOperation(value = "Checks the post creation rule for datatable upload", notes = "Add the observation Based on rules", response = String.class)
+	@ApiResponses(value = {
+			@ApiResponse(code = 400, message = "Unable to set the filter Rule", response = String.class) })
+
+	public Response getFilterRuleForDatatableUpload(@Context HttpServletRequest request,
+			@ApiParam(name = "ugObvFilterData") UserGroupObvRuleData ugObvFilterData) {
+		try {
+			ruleFilterService.bgFiltureRuleForDatatable(request, ugObvFilterData);
+			return Response.status(Status.OK).build();
+		} catch (Exception e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+	}
+
+	@POST
 	@Path(ApiConstants.FILTERRULE + ApiConstants.BULK + ApiConstants.POSTING + "/{userGroupId}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
