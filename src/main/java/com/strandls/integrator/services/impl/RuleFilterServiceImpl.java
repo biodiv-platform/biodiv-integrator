@@ -201,21 +201,23 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 
 	@Override
 	public void bgFiltureRule(HttpServletRequest request, UserGroupObvRuleData ugObvFilterData) {
-		bgPostingUG(request, ugObvFilterData);
-		bgUnPostingUG(request, ugObvFilterData);
+		bgPostingUG(request, ugObvFilterData, false);
+		bgUnPostingUG(request, ugObvFilterData, false);
 
 	}
 
 	@Override
 	public void bgFiltureRuleForDatatable(HttpServletRequest request, UserGroupObvRuleData ugObvFilterData) {
-		bgPostingUGforDatatable(request, ugObvFilterData);
-		bgUnPostingUGForDatatable(request, ugObvFilterData);
+		// bgPostingUGforDatatable(request, ugObvFilterData);
+		bgPostingUG(request, ugObvFilterData, true);
+		// bgUnPostingUGForDatatable(request, ugObvFilterData);
+		bgUnPostingUG(request, ugObvFilterData, true);
 
 	}
 
 //	for posting observation to usergroup
 	@Override
-	public void bgPostingUG(HttpServletRequest request, UserGroupObvRuleData ugFilterData) {
+	public void bgPostingUG(HttpServletRequest request, UserGroupObvRuleData ugFilterData, Boolean isDataTableUpload) {
 
 		try {
 			List<UserGroupIbp> ugObservation = new ArrayList<>();
@@ -253,8 +255,14 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 				payload.setUgFilterData(UserGroupObv);
 				payload.setUserGroups(ugIdFilterList);
 				payload.setHasActivity(false);
-				List<Long> UgObvData = ugService
-						.createObservationUserGroupMapping(ugFilterData.getObservationId().toString(), payload);
+				List<Long> UgObvData;
+				if (Boolean.TRUE.equals(isDataTableUpload)) {
+					UgObvData = ugService.createObservationUserGroupMappingDatatable(
+							ugFilterData.getObservationId().toString(), payload);
+				} else {
+					UgObvData = ugService.createObservationUserGroupMapping(ugFilterData.getObservationId().toString(),
+							payload);
+				}
 
 				if (UgObvData != null) {
 					for (Long ugid : UgObvData)
@@ -269,60 +277,60 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 
 	}
 
-	@Override
-	public void bgPostingUGforDatatable(HttpServletRequest request, UserGroupObvRuleData ugFilterData) {
-
-		try {
-			List<UserGroupIbp> ugObservation = new ArrayList<>();
-			List<UserGroupFilterRule> ugFilterList = ugFilterRuleDao.findAll();
-			ugObservation = ugService.getObservationUserGroup(ugFilterData.getObservationId().toString());
-			List<Long> ugIdFilterList = new ArrayList<>();
-			for (UserGroupFilterRule ugFilter : ugFilterList)
-				ugIdFilterList.add(ugFilter.getUserGroupId());
-			List<Long> ugIdObvList = new ArrayList<>();
-			if (ugObservation != null && !ugObservation.isEmpty()) {
-				for (UserGroupIbp ugObv : ugObservation)
-					if (ugObv != null && ugObv.getId() != null)
-						ugIdObvList.add(ugObv.getId());
-			}
-
-//			filter out eligible ugIds
-			ugIdFilterList = checkUserGroupEligiblity(request, ugIdFilterList, ugFilterData.getAuthorId(), ugFilterData,
-					false);
-
-//			filter out all the currently mapped ugIds
-			ugIdFilterList = ugIdFilterList.isEmpty() ? ugIdFilterList
-					: ugIdFilterList.stream().filter(ugId -> !ugIdObvList.contains(ugId)).collect(Collectors.toList());
-
-			if (!ugIdFilterList.isEmpty()) {
-				UserGroupObvFilterData UserGroupObv = new UserGroupObvFilterData();
-				UserGroupObv.setAuthorId(UserGroupObv.getAuthorId());
-				UserGroupObv.setCreatedOnDate(UserGroupObv.getCreatedOnDate());
-				UserGroupObv.setLatitude(UserGroupObv.getLatitude());
-				UserGroupObv.setLongitude(UserGroupObv.getLongitude());
-				UserGroupObv.setObservationId(UserGroupObv.getObservationId());
-				UserGroupObv.setObservedOnDate(UserGroupObv.getObservedOnDate());
-				UserGroupObv.setTaxonomyId(UserGroupObv.getTaxonomyId());
-				UserGroupMappingCreateData payload = new UserGroupMappingCreateData();
-				payload.setMailData(null);
-				payload.setUgFilterData(UserGroupObv);
-				payload.setUserGroups(ugIdFilterList);
-				payload.setHasActivity(false);
-				List<Long> UgObvData = ugService.createObservationUserGroupMappingDatatable(
-						ugFilterData.getObservationId().toString(), payload);
-
-				if (UgObvData != null) {
-					for (Long ugid : UgObvData)
-						logUgActivityDescrption(ugid, observationModule, "Posted resource", viaFilterRules,
-								ugFilterData);
-				}
-			}
-
-		} catch (Exception e) {
-			logger.error(e.getMessage());
-		}
-
-	}
+//	@Override
+//	public void bgPostingUGforDatatable(HttpServletRequest request, UserGroupObvRuleData ugFilterData) {
+//
+//		try {
+//			List<UserGroupIbp> ugObservation = new ArrayList<>();
+//			List<UserGroupFilterRule> ugFilterList = ugFilterRuleDao.findAll();
+//			ugObservation = ugService.getObservationUserGroup(ugFilterData.getObservationId().toString());
+//			List<Long> ugIdFilterList = new ArrayList<>();
+//			for (UserGroupFilterRule ugFilter : ugFilterList)
+//				ugIdFilterList.add(ugFilter.getUserGroupId());
+//			List<Long> ugIdObvList = new ArrayList<>();
+//			if (ugObservation != null && !ugObservation.isEmpty()) {
+//				for (UserGroupIbp ugObv : ugObservation)
+//					if (ugObv != null && ugObv.getId() != null)
+//						ugIdObvList.add(ugObv.getId());
+//			}
+//
+////			filter out eligible ugIds
+//			ugIdFilterList = checkUserGroupEligiblity(request, ugIdFilterList, ugFilterData.getAuthorId(), ugFilterData,
+//					false);
+//
+////			filter out all the currently mapped ugIds
+//			ugIdFilterList = ugIdFilterList.isEmpty() ? ugIdFilterList
+//					: ugIdFilterList.stream().filter(ugId -> !ugIdObvList.contains(ugId)).collect(Collectors.toList());
+//
+//			if (!ugIdFilterList.isEmpty()) {
+//				UserGroupObvFilterData UserGroupObv = new UserGroupObvFilterData();
+//				UserGroupObv.setAuthorId(UserGroupObv.getAuthorId());
+//				UserGroupObv.setCreatedOnDate(UserGroupObv.getCreatedOnDate());
+//				UserGroupObv.setLatitude(UserGroupObv.getLatitude());
+//				UserGroupObv.setLongitude(UserGroupObv.getLongitude());
+//				UserGroupObv.setObservationId(UserGroupObv.getObservationId());
+//				UserGroupObv.setObservedOnDate(UserGroupObv.getObservedOnDate());
+//				UserGroupObv.setTaxonomyId(UserGroupObv.getTaxonomyId());
+//				UserGroupMappingCreateData payload = new UserGroupMappingCreateData();
+//				payload.setMailData(null);
+//				payload.setUgFilterData(UserGroupObv);
+//				payload.setUserGroups(ugIdFilterList);
+//				payload.setHasActivity(false);
+//				List<Long> UgObvData = ugService.createObservationUserGroupMappingDatatable(
+//						ugFilterData.getObservationId().toString(), payload);
+//
+//				if (UgObvData != null) {
+//					for (Long ugid : UgObvData)
+//						logUgActivityDescrption(ugid, observationModule, "Posted resource", viaFilterRules,
+//								ugFilterData);
+//				}
+//			}
+//
+//		} catch (Exception e) {
+//			logger.error(e.getMessage());
+//		}
+//
+//	}
 
 	private void logUgActivityDescrption(Long ugid, String module, String message, String reason,
 			UserGroupObvRuleData ugFilterData) throws IOException, ApiException {
@@ -367,7 +375,8 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 
 //	for  unposting observation from a userGroup
 	@Override
-	public void bgUnPostingUG(HttpServletRequest request, UserGroupObvRuleData ugObvFilterData) {
+	public void bgUnPostingUG(HttpServletRequest request, UserGroupObvRuleData ugObvFilterData,
+			Boolean isDataTableUpload) {
 
 		try {
 
@@ -393,50 +402,14 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 				if (ugid != null && ugIdFilterList.contains(ugid) && !eligibleUgList.contains(ugid)) {
 
 					ugService = headers.addUserGroupHeader(ugService, request.getHeader(HttpHeaders.AUTHORIZATION));
-					ugService.removeObservationUserGroup(ugObvFilterData.getObservationId().toString(),
-							ugid.toString());
-
-					logUgActivityDescrption(ugid, observationModule, "Removed resource", viaFilterRules,
-							ugObvFilterData);
-
-				}
-			}
-		} catch (Exception e) {
-			logger.error(e.getMessage());
-		}
-
-	}
-
-	@Override
-	public void bgUnPostingUGForDatatable(HttpServletRequest request, UserGroupObvRuleData ugObvFilterData) {
-
-		try {
-
-			List<UserGroupFilterRule> ugFilterList = ugFilterRuleDao.findAll();
-			List<UserGroupIbp> ugObservation = ugService
-					.getObservationUserGroup(ugObvFilterData.getObservationId().toString());
-			List<Long> ugIdFilterList = new ArrayList<>();// all grp that has grp rules;
-			for (UserGroupFilterRule ugFilter : ugFilterList)
-				ugIdFilterList.add(ugFilter.getUserGroupId());
-			List<Long> ugIdObvList = new ArrayList<>();// mapped observation ug list
-			if (ugObservation != null && !ugObservation.isEmpty()) {
-				for (UserGroupIbp ugObv : ugObservation)
-					if (ugObv != null && ugObv.getId() != null) {
-						ugIdObvList.add(ugObv.getId());
+					if (Boolean.TRUE.equals(isDataTableUpload)) {
+						ugService.removeObservationUserGroupDatatable(ugObvFilterData.getObservationId().toString(),
+								ugid.toString());
+					} else {
+						ugService.removeObservationUserGroup(ugObvFilterData.getObservationId().toString(),
+								ugid.toString());
 					}
 
-			}
-
-			List<Long> eligibleUgList = checkUserGroupEligiblity(request, ugIdObvList, ugObvFilterData.getAuthorId(),
-					ugObvFilterData, true);
-
-			for (Long ugid : ugIdObvList) {
-				if (ugid != null && ugIdFilterList.contains(ugid) && !eligibleUgList.contains(ugid)) {
-
-					ugService = headers.addUserGroupHeader(ugService, request.getHeader(HttpHeaders.AUTHORIZATION));
-					ugService.removeObservationUserGroupDatatable(ugObvFilterData.getObservationId().toString(),
-							ugid.toString());
-
 					logUgActivityDescrption(ugid, observationModule, "Removed resource", viaFilterRules,
 							ugObvFilterData);
 
@@ -447,6 +420,47 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 		}
 
 	}
+
+//	@Override
+//	public void bgUnPostingUGForDatatable(HttpServletRequest request, UserGroupObvRuleData ugObvFilterData) {
+//
+//		try {
+//
+//			List<UserGroupFilterRule> ugFilterList = ugFilterRuleDao.findAll();
+//			List<UserGroupIbp> ugObservation = ugService
+//					.getObservationUserGroup(ugObvFilterData.getObservationId().toString());
+//			List<Long> ugIdFilterList = new ArrayList<>();// all grp that has grp rules;
+//			for (UserGroupFilterRule ugFilter : ugFilterList)
+//				ugIdFilterList.add(ugFilter.getUserGroupId());
+//			List<Long> ugIdObvList = new ArrayList<>();// mapped observation ug list
+//			if (ugObservation != null && !ugObservation.isEmpty()) {
+//				for (UserGroupIbp ugObv : ugObservation)
+//					if (ugObv != null && ugObv.getId() != null) {
+//						ugIdObvList.add(ugObv.getId());
+//					}
+//
+//			}
+//
+//			List<Long> eligibleUgList = checkUserGroupEligiblity(request, ugIdObvList, ugObvFilterData.getAuthorId(),
+//					ugObvFilterData, true);
+//
+//			for (Long ugid : ugIdObvList) {
+//				if (ugid != null && ugIdFilterList.contains(ugid) && !eligibleUgList.contains(ugid)) {
+//
+//					ugService = headers.addUserGroupHeader(ugService, request.getHeader(HttpHeaders.AUTHORIZATION));
+//					ugService.removeObservationUserGroupDatatable(ugObvFilterData.getObservationId().toString(),
+//							ugid.toString());
+//
+//					logUgActivityDescrption(ugid, observationModule, "Removed resource", viaFilterRules,
+//							ugObvFilterData);
+//
+//				}
+//			}
+//		} catch (Exception e) {
+//			logger.error(e.getMessage());
+//		}
+//
+//	}
 
 	@Override
 	public List<Long> checkUserGroupEligiblity(HttpServletRequest request, List<Long> userGroupIds, Long authorId,

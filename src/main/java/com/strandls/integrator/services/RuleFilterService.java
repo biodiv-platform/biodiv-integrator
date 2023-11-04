@@ -14,9 +14,10 @@ public interface RuleFilterService {
 
 	public void bgFiltureRule(HttpServletRequest request, UserGroupObvRuleData ugObvFilterData);
 
-	public void bgPostingUG(HttpServletRequest request, UserGroupObvRuleData ugFilterData);
+	public void bgPostingUG(HttpServletRequest request, UserGroupObvRuleData ugFilterData, Boolean isDataTableUpload);
 
-	public void bgUnPostingUG(HttpServletRequest request, UserGroupObvRuleData ugObvFilterData);
+	public void bgUnPostingUG(HttpServletRequest request, UserGroupObvRuleData ugObvFilterData,
+			Boolean isDataTableUpload);
 
 	public void bulkFilteringIn(HttpServletRequest request, Long userGroupId,
 			List<UserGroupObvRuleData> ugObvFilterDataList);
@@ -38,10 +39,11 @@ public interface RuleFilterService {
 	List<Long> checkUserGroupEligiblity(HttpServletRequest request, List<Long> userGroupIds, Long authorId,
 			UserGroupObvRuleData ugFilterData, Boolean isPosting);
 
-	public void bgPostingUGforDatatable(HttpServletRequest request, UserGroupObvRuleData ugFilterData);
+	// public void bgPostingUGforDatatable(HttpServletRequest request,
+	// UserGroupObvRuleData ugFilterData);
 
 	public void bgFiltureRuleForDatatable(HttpServletRequest request, UserGroupObvRuleData ugObvFilterData);
 
-	public void bgUnPostingUGForDatatable(HttpServletRequest request, UserGroupObvRuleData ugObvFilterData);
+	//public void bgUnPostingUGForDatatable(HttpServletRequest request, UserGroupObvRuleData ugObvFilterData);
 
 }
