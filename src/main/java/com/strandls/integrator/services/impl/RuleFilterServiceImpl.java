@@ -201,14 +201,21 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 
 	@Override
 	public void bgFiltureRule(HttpServletRequest request, UserGroupObvRuleData ugObvFilterData) {
-		bgPostingUG(request, ugObvFilterData);
-		bgUnPostingUG(request, ugObvFilterData);
+		bgPostingUG(request, ugObvFilterData, false);
+		bgUnPostingUG(request, ugObvFilterData, false);
+
+	}
+
+	@Override
+	public void bgFiltureRuleForDatatable(HttpServletRequest request, UserGroupObvRuleData ugObvFilterData) {
+		bgPostingUG(request, ugObvFilterData, true);
+		bgUnPostingUG(request, ugObvFilterData, true);
 
 	}
 
 //	for posting observation to usergroup
 	@Override
-	public void bgPostingUG(HttpServletRequest request, UserGroupObvRuleData ugFilterData) {
+	public void bgPostingUG(HttpServletRequest request, UserGroupObvRuleData ugFilterData, Boolean isDataTableUpload) {
 
 		try {
 			List<UserGroupIbp> ugObservation = new ArrayList<>();
@@ -246,8 +253,14 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 				payload.setUgFilterData(UserGroupObv);
 				payload.setUserGroups(ugIdFilterList);
 				payload.setHasActivity(false);
-				List<Long> UgObvData = ugService
-						.createObservationUserGroupMapping(ugFilterData.getObservationId().toString(), payload);
+				List<Long> UgObvData;
+				if (Boolean.TRUE.equals(isDataTableUpload)) {
+					UgObvData = ugService.createObservationUserGroupMappingDatatable(
+							ugFilterData.getObservationId().toString(), payload);
+				} else {
+					UgObvData = ugService.createObservationUserGroupMapping(ugFilterData.getObservationId().toString(),
+							payload);
+				}
 
 				if (UgObvData != null) {
 					for (Long ugid : UgObvData)
@@ -305,7 +318,8 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 
 //	for  unposting observation from a userGroup
 	@Override
-	public void bgUnPostingUG(HttpServletRequest request, UserGroupObvRuleData ugObvFilterData) {
+	public void bgUnPostingUG(HttpServletRequest request, UserGroupObvRuleData ugObvFilterData,
+			Boolean isDataTableUpload) {
 
 		try {
 
@@ -331,8 +345,13 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 				if (ugid != null && ugIdFilterList.contains(ugid) && !eligibleUgList.contains(ugid)) {
 
 					ugService = headers.addUserGroupHeader(ugService, request.getHeader(HttpHeaders.AUTHORIZATION));
-					ugService.removeObservationUserGroup(ugObvFilterData.getObservationId().toString(),
-							ugid.toString());
+					if (Boolean.TRUE.equals(isDataTableUpload)) {
+						ugService.removeObservationUserGroupDatatable(ugObvFilterData.getObservationId().toString(),
+								ugid.toString());
+					} else {
+						ugService.removeObservationUserGroup(ugObvFilterData.getObservationId().toString(),
+								ugid.toString());
+					}
 
 					logUgActivityDescrption(ugid, observationModule, "Removed resource", viaFilterRules,
 							ugObvFilterData);
