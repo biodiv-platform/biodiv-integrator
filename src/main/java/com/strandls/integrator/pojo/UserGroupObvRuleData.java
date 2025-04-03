@@ -1,6 +1,8 @@
 package com.strandls.integrator.pojo;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 public class UserGroupObvRuleData {
 
@@ -11,6 +13,7 @@ public class UserGroupObvRuleData {
 	private Date observedOnDate;
 	private Long taxonomyId;
 	private Long authorId;
+	private Map<String, List<Long>> traits;
 
 	/**
 	 * 
@@ -20,7 +23,7 @@ public class UserGroupObvRuleData {
 	}
 
 	public UserGroupObvRuleData(Long observationId, Double latitude, Double longitude, Date createdOnDate,
-			Date observedOnDate, Long taxonomyId, Long authorId) {
+			Date observedOnDate, Long taxonomyId, Long authorId, Map<String, List<Long>> traits) {
 		super();
 		this.observationId = observationId;
 		this.latitude = latitude;
@@ -29,6 +32,7 @@ public class UserGroupObvRuleData {
 		this.observedOnDate = observedOnDate;
 		this.taxonomyId = taxonomyId;
 		this.authorId = authorId;
+		this.traits = traits;
 	}
 
 	public Long getObservationId() {
@@ -85,6 +89,14 @@ public class UserGroupObvRuleData {
 
 	public void setAuthorId(Long authorId) {
 		this.authorId = authorId;
+	}
+	
+	public Map<String, List<Long>> getTraits() {
+		return traits;
+	}
+	
+	public void setTraits(Map<String, List<Long>> traits) {
+		this.traits = traits;
 	}
 
 }

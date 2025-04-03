@@ -27,6 +27,7 @@ public class UserGroupFilterRule implements Serializable {
 	private Boolean hasUserRule;
 	private Boolean hasCreatedOnDateRule;
 	private Boolean hasObservedOnDateRule;
+	private Boolean hasTraitRule;
 
 	/**
 	 * 
@@ -120,6 +121,15 @@ public class UserGroupFilterRule implements Serializable {
 
 	public void setHasObservedOnDateRule(Boolean hasObservedOnDateRule) {
 		this.hasObservedOnDateRule = hasObservedOnDateRule;
+	}
+	
+	@Column(name = "has_trait_rule", columnDefinition = "BOOLEAN DEFAULT FALSE")
+	public Boolean getHasTraitRule() {
+		return hasTraitRule;
+	}
+	
+	public void setHasTraitRule (Boolean hasTraitRule) {
+		this.hasTraitRule = hasTraitRule;
 	}
 
 }
