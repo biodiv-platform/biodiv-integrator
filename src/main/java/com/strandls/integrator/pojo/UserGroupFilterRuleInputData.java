@@ -11,7 +11,7 @@ public class UserGroupFilterRuleInputData {
 	private List<String> spartialDataList;
 	private List<UserGroupFilterDate> createdOnDateList;
 	private List<UserGroupFilterDate> observedOnDateList;
-	private Map<String, Long> traitList;
+	private List<Map<String, Long>> traitList;
 
 	/**
 	 * 
@@ -28,7 +28,7 @@ public class UserGroupFilterRuleInputData {
 	 * @param observedOnDateList
 	 */
 	public UserGroupFilterRuleInputData(Boolean hasUserRule, List<Long> taxonomicIdList, List<String> spartialDataList,
-			List<UserGroupFilterDate> createdOnDateList, List<UserGroupFilterDate> observedOnDateList, Map<String, Long> traitList) {
+			List<UserGroupFilterDate> createdOnDateList, List<UserGroupFilterDate> observedOnDateList, List<Map<String, Long>> traitList) {
 		super();
 		this.hasUserRule = hasUserRule;
 		this.taxonomicIdList = taxonomicIdList;
@@ -78,11 +78,11 @@ public class UserGroupFilterRuleInputData {
 		this.observedOnDateList = observedOnDateList;
 	}
 	
-	public Map<String, Long> getTraitList() {
+	public List<Map<String, Long>> getTraitList() {
 		return traitList;
 	}
 
-	public void setTraitList(Map<String, Long> traitList) {
+	public void setTraitList(List<Map<String, Long>> traitList) {
 		this.traitList = traitList;
 	}
 

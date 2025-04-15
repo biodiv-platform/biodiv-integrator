@@ -70,7 +70,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 
 	@Inject
 	private UserGroupTaxonomicRuleDao ugtaxonomicDao;
-	
+
 	@Inject
 	private UserGroupTraitRuleDao ugTraitDao;
 
@@ -184,24 +184,22 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 		}
 		return false;
 	}
-	
+
 // check traits rule
 	private Boolean checkTraitRule(Long userGroupId, Map<String, List<Long>> traits) {
 		List<UserGroupTraitRule> traitRule = ugTraitDao.findByUserGroupIdIsEnabled(userGroupId);
-		if (traitRule !=null && !traitRule.isEmpty()) {
+		if (traitRule != null && !traitRule.isEmpty()) {
 			Map<Long, List<Long>> groupedByTraitId = traitRule.stream()
-	                .collect(Collectors.groupingBy(
-	                        	UserGroupTraitRule::getTraitId, 
-	                        Collectors.mapping(UserGroupTraitRule::getValue, Collectors.toList())
-	                ));
+					.collect(Collectors.groupingBy(UserGroupTraitRule::getTraitId,
+							Collectors.mapping(UserGroupTraitRule::getValue, Collectors.toList())));
 			for (Map.Entry<Long, List<Long>> entry : groupedByTraitId.entrySet()) {
 				if (traits.containsKey(entry.getKey().toString())) {
-						boolean matchFound = entry.getValue().stream().anyMatch(traits.get(entry.getKey().toString())::contains);
-						if (!matchFound) {
-							return false;
-						}
-				}
-				else {
+					boolean matchFound = entry.getValue().stream()
+							.anyMatch(traits.get(entry.getKey().toString())::contains);
+					if (!matchFound) {
+						return false;
+					}
+				} else {
 					return false;
 				}
 			}
@@ -454,7 +452,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 							result = true;
 
 					}
-					
+
 					if (Boolean.TRUE.equals((ugFilter.getHasTraitRule())) && Boolean.TRUE.equals(result)) {
 						isTraits = checkTraitRule(ugId, ugFilterData.getTraits());
 						if (isTraits)
@@ -520,7 +518,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 						reason = reason + " ObservedOn Date Rule ,";
 				}
 				if (Boolean.TRUE.equals(ugFilter.getHasTraitRule())) {
-					Boolean isTraits = checkTraitRule(userGroupId,ugObvFilterData.getTraits());
+					Boolean isTraits = checkTraitRule(userGroupId, ugObvFilterData.getTraits());
 					if (!isTraits)
 						reason = reason + "Trait Rule ,";
 				}
@@ -543,8 +541,8 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 	@Override
 	public ShowFilterRule showAllFilter(Long userGroupId) {
 
-		ShowFilterRule showFilter = new ShowFilterRule(false, null, false, null, false, false, null, false, null,
-				false, null);
+		ShowFilterRule showFilter = new ShowFilterRule(false, null, false, null, false, false, null, false, null, false,
+				null);
 
 		UserGroupFilterRule ugFilter = ugFilterRuleDao.findByUserGroupId(userGroupId);
 		if (ugFilter != null) {
@@ -633,9 +631,9 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 					logActivity.logUserGroupActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, userGroupId,
 							userGroupId, "userGroup", ugFilter.getId(), removeFilterRule);
 				}
-			} else if(ugFilterRemove.getFilterName().equals("traitRule")) {
+			} else if (ugFilterRemove.getFilterName().equals("traitRule")) {
 				if (ugFilter.getHasTraitRule()) {
-					
+
 					UserGroupTraitRule traitRule = ugTraitDao.findById(ugFilterRemove.getFilterId());
 					ugTraitDao.delete(traitRule);
 				}
@@ -756,7 +754,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 			if (createdOnData != null && !createdOnData.isEmpty())
 				ugFilter.setHasCreatedOnDateRule(true);
 			ugFilter.setHasTraitRule(false);
-			if(traitData !=null && !traitData.isEmpty())
+			if (traitData != null && !traitData.isEmpty())
 				ugFilter.setHasTraitRule(true);
 			ugFilter = ugFilterRuleDao.update(ugFilter);
 
@@ -845,11 +843,12 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 				}
 			}
 			if (ugFilterInputData.getTraitList() != null && !ugFilterInputData.getTraitList().isEmpty()) {
-				for (Entry<String, Long> ugTrait : ugFilterInputData.getTraitList().entrySet()) {
-					UserGroupTraitRule ugTraitRule = new UserGroupTraitRule(null, userGroupId,
-							Long.parseLong(ugTrait.getKey()),
-							ugTrait.getValue(),true);
-					ugTraitDao.save(ugTraitRule);
+				for (Map<String, Long> rule : ugFilterInputData.getTraitList()) {
+					for (Entry<String, Long> ugTrait : rule.entrySet()) {
+						UserGroupTraitRule ugTraitRule = new UserGroupTraitRule(null, userGroupId,
+								Long.parseLong(ugTrait.getKey()), ugTrait.getValue(), true);
+						ugTraitDao.save(ugTraitRule);
+					}
 				}
 			}
 
