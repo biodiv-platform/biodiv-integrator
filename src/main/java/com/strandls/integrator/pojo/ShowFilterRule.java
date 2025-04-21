@@ -17,6 +17,8 @@ public class ShowFilterRule {
 	private List<UserGroupCreatedOnDateRule> createdOnDateRuleList;
 	private Boolean hasObservedOnDateRule;
 	private List<UserGroupObservedonDateRule> observedOnDateRule;
+	private Boolean hasTraitRule;
+	private List<UserGroupTraitRule> traitRuleList;
 
 	/**
 	 * 
@@ -39,7 +41,7 @@ public class ShowFilterRule {
 	public ShowFilterRule(Boolean hasSpatialRule, List<UserGroupSpatialData> spartialRuleList, Boolean hasTaxonomicRule,
 			List<UserGroupTaxonomicRule> taxonomicRuleList, Boolean hasUserRule, Boolean hasCreatedOnDateRule,
 			List<UserGroupCreatedOnDateRule> createdOnDateRuleList, Boolean hasObservedOnDateRule,
-			List<UserGroupObservedonDateRule> observedOnDateRule) {
+			List<UserGroupObservedonDateRule> observedOnDateRule, Boolean hasTraitRule, List<UserGroupTraitRule> traitRuleList) {
 		super();
 		this.hasSpatialRule = hasSpatialRule;
 		this.spartialRuleList = spartialRuleList;
@@ -50,6 +52,8 @@ public class ShowFilterRule {
 		this.createdOnDateRuleList = createdOnDateRuleList;
 		this.hasObservedOnDateRule = hasObservedOnDateRule;
 		this.observedOnDateRule = observedOnDateRule;
+		this.hasTraitRule = hasTraitRule;
+		this.traitRuleList = traitRuleList;
 	}
 
 	public Boolean getHasSpatialRule() {
@@ -122,6 +126,22 @@ public class ShowFilterRule {
 
 	public void setObservedOnDateRule(List<UserGroupObservedonDateRule> observedOnDateRule) {
 		this.observedOnDateRule = observedOnDateRule;
+	}
+	
+	public Boolean getHasTraitRule() {
+		return hasTraitRule;
+	}
+
+	public void setHasTraitRule(Boolean hasTraitRule) {
+		this.hasTraitRule = hasTraitRule;
+	}
+	
+	public List<UserGroupTraitRule> getTraitRuleList() {
+		return traitRuleList;
+	}
+	
+	public void setTraitRuleList (List<UserGroupTraitRule> traitRuleList) {
+		this.traitRuleList = traitRuleList;
 	}
 
 }

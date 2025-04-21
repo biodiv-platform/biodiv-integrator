@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
@@ -23,6 +25,7 @@ import com.strandls.integrator.dao.UserGroupFilterRuleDao;
 import com.strandls.integrator.dao.UserGroupObservedOnDateRuleDao;
 import com.strandls.integrator.dao.UserGroupSpatialDataDao;
 import com.strandls.integrator.dao.UserGroupTaxonomicRuleDao;
+import com.strandls.integrator.dao.UserGroupTraitRuleDao;
 import com.strandls.integrator.pojo.ShowFilterRule;
 import com.strandls.integrator.pojo.UserGroupCreatedOnDateRule;
 import com.strandls.integrator.pojo.UserGroupFilterDate;
@@ -34,6 +37,7 @@ import com.strandls.integrator.pojo.UserGroupObservedonDateRule;
 import com.strandls.integrator.pojo.UserGroupObvRuleData;
 import com.strandls.integrator.pojo.UserGroupSpatialData;
 import com.strandls.integrator.pojo.UserGroupTaxonomicRule;
+import com.strandls.integrator.pojo.UserGroupTraitRule;
 import com.strandls.integrator.services.RuleFilterService;
 import com.strandls.integrator.util.TokenGenerator;
 import com.strandls.taxonomy.controllers.TaxonomyTreeServicesApi;
@@ -66,6 +70,9 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 
 	@Inject
 	private UserGroupTaxonomicRuleDao ugtaxonomicDao;
+
+	@Inject
+	private UserGroupTraitRuleDao ugTraitDao;
 
 	@Inject
 	private UserServiceApi userService;
@@ -176,6 +183,28 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 			logger.error(e.getMessage());
 		}
 		return false;
+	}
+
+// check traits rule
+	private Boolean checkTraitRule(Long userGroupId, Map<String, List<Long>> traits) {
+		List<UserGroupTraitRule> traitRule = ugTraitDao.findByUserGroupIdIsEnabled(userGroupId);
+		if (traitRule != null && !traitRule.isEmpty()) {
+			Map<Long, List<Long>> groupedByTraitId = traitRule.stream()
+					.collect(Collectors.groupingBy(UserGroupTraitRule::getTraitId,
+							Collectors.mapping(UserGroupTraitRule::getValue, Collectors.toList())));
+			for (Map.Entry<Long, List<Long>> entry : groupedByTraitId.entrySet()) {
+				if (traits.containsKey(entry.getKey().toString())) {
+					boolean matchFound = entry.getValue().stream()
+							.anyMatch(traits.get(entry.getKey().toString())::contains);
+					if (!matchFound) {
+						return false;
+					}
+				} else {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 //	check spartial rule
@@ -377,6 +406,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 				Boolean isUser = false;
 				Boolean isCreatedOn = false;
 				Boolean isObservedOn = false;
+				Boolean isTraits = false;
 				Boolean result = true;
 				if (ugFilter != null) {
 					if (Boolean.TRUE.equals(ugFilter.getHasSpatialRule()) && Boolean.TRUE.equals(result)) {
@@ -423,11 +453,20 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 
 					}
 
+					if (Boolean.TRUE.equals((ugFilter.getHasTraitRule())) && Boolean.TRUE.equals(result)) {
+						isTraits = checkTraitRule(ugId, ugFilterData.getTraits());
+						if (isTraits)
+							result = true;
+						else
+							result = false;
+					}
+
 					if (Boolean.FALSE.equals(ugFilter.getHasSpatialRule())
 							&& Boolean.FALSE.equals(ugFilter.getHasTaxonomicRule())
 							&& Boolean.FALSE.equals(ugFilter.getHasUserRule())
 							&& Boolean.FALSE.equals(ugFilter.getHasCreatedOnDateRule())
-							&& Boolean.FALSE.equals(ugFilter.getHasObservedOnDateRule()))
+							&& Boolean.FALSE.equals(ugFilter.getHasObservedOnDateRule())
+							&& Boolean.FALSE.equals(ugFilter.getHasTraitRule()))
 						result = true;
 
 				}
@@ -478,6 +517,11 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 					if (!isObservedOn)
 						reason = reason + " ObservedOn Date Rule ,";
 				}
+				if (Boolean.TRUE.equals(ugFilter.getHasTraitRule())) {
+					Boolean isTraits = checkTraitRule(userGroupId, ugObvFilterData.getTraits());
+					if (!isTraits)
+						reason = reason + "Trait Rule ,";
+				}
 			}
 
 			if (reason.length() > 0) {
@@ -497,7 +541,8 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 	@Override
 	public ShowFilterRule showAllFilter(Long userGroupId) {
 
-		ShowFilterRule showFilter = new ShowFilterRule(false, null, false, null, false, false, null, false, null);
+		ShowFilterRule showFilter = new ShowFilterRule(false, null, false, null, false, false, null, false, null, false,
+				null);
 
 		UserGroupFilterRule ugFilter = ugFilterRuleDao.findByUserGroupId(userGroupId);
 		if (ugFilter != null) {
@@ -519,6 +564,10 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 			if (Boolean.TRUE.equals(ugFilter.getHasObservedOnDateRule())) {
 				showFilter.setHasObservedOnDateRule(true);
 				showFilter.setObservedOnDateRule(ugObservedDateDao.findAllByUserGroupId(userGroupId));
+			}
+			if (Boolean.TRUE.equals(ugFilter.getHasTraitRule())) {
+				showFilter.setHasTraitRule(true);
+				showFilter.setTraitRuleList(ugTraitDao.findAllByUserGroupId(userGroupId));
 			}
 		}
 		return showFilter;
@@ -581,6 +630,12 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 					String desc = "CreatedOn Date Rule Removed :" + fromDate + " to " + toDate;
 					logActivity.logUserGroupActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, userGroupId,
 							userGroupId, "userGroup", ugFilter.getId(), removeFilterRule);
+				}
+			} else if (ugFilterRemove.getFilterName().equals("traitRule")) {
+				if (ugFilter.getHasTraitRule()) {
+
+					UserGroupTraitRule traitRule = ugTraitDao.findById(ugFilterRemove.getFilterId());
+					ugTraitDao.delete(traitRule);
 				}
 			}
 
@@ -682,6 +737,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 			List<UserGroupTaxonomicRule> taxonomicData = ugtaxonomicDao.findAllByUserGroupId(userGroupId);
 			List<UserGroupObservedonDateRule> observedOnData = ugObservedDateDao.findAllByUserGroupId(userGroupId);
 			List<UserGroupCreatedOnDateRule> createdOnData = ugCreatedDateDao.findAllByUserGroupId(userGroupId);
+			List<UserGroupTraitRule> traitData = ugTraitDao.findAllByUserGroupId(userGroupId);
 			ugFilter.setHasSpatialRule(false);
 			if (spartialData != null && !spartialData.isEmpty())
 				ugFilter.setHasSpatialRule(true);
@@ -697,13 +753,17 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 			ugFilter.setHasCreatedOnDateRule(false);
 			if (createdOnData != null && !createdOnData.isEmpty())
 				ugFilter.setHasCreatedOnDateRule(true);
+			ugFilter.setHasTraitRule(false);
+			if (traitData != null && !traitData.isEmpty())
+				ugFilter.setHasTraitRule(true);
 			ugFilter = ugFilterRuleDao.update(ugFilter);
 
 			if (Boolean.FALSE.equals(ugFilter.getHasSpatialRule())
 					&& Boolean.FALSE.equals(ugFilter.getHasTaxonomicRule())
 					&& Boolean.FALSE.equals(ugFilter.getHasUserRule())
 					&& Boolean.FALSE.equals(ugFilter.getHasCreatedOnDateRule())
-					&& Boolean.FALSE.equals(ugFilter.getHasObservedOnDateRule()))
+					&& Boolean.FALSE.equals(ugFilter.getHasObservedOnDateRule())
+					&& Boolean.FALSE.equals(ugFilter.getHasTraitRule()))
 				ugFilterRuleDao.delete(ugFilter);
 
 		} catch (Exception e) {
@@ -780,6 +840,15 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 					String desc = "ObservedOn Date Rule Added:" + fromDate + " to " + toDate;
 					logActivity.logUserGroupActivities(request.getHeader(HttpHeaders.AUTHORIZATION), desc, userGroupId,
 							userGroupId, "userGroup", ugFilterRule.getId(), "Added Filter Rule");
+				}
+			}
+			if (ugFilterInputData.getTraitList() != null && !ugFilterInputData.getTraitList().isEmpty()) {
+				for (Map<String, Long> rule : ugFilterInputData.getTraitList()) {
+					for (Entry<String, Long> ugTrait : rule.entrySet()) {
+						UserGroupTraitRule ugTraitRule = new UserGroupTraitRule(null, userGroupId,
+								Long.parseLong(ugTrait.getKey()), ugTrait.getValue(), true);
+						ugTraitDao.save(ugTraitRule);
+					}
 				}
 			}
 
