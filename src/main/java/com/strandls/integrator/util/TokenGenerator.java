@@ -1,5 +1,7 @@
 package com.strandls.integrator.util;
 
+import java.time.OffsetDateTime;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -9,6 +11,9 @@ import com.strandls.user.pojo.Role;
 import com.strandls.user.pojo.User;
 
 public class TokenGenerator {
+	public Date convertToDate(OffsetDateTime odt) {
+		return odt == null ? null : Date.from(odt.toInstant());
+	}
 
 	public String generate(User user) {
 
@@ -26,7 +31,7 @@ public class TokenGenerator {
 		u1.setIdentificationMail(user.getIdentificationMail());
 		u1.setInstitution(user.getInstitution());
 		u1.setLanguageId(user.getLanguageId());
-		u1.setLastLoginDate(user.getLastLoginDate());
+		u1.setLastLoginDate(user.getDateCreated());
 		u1.setLatitude(user.getLatitude());
 		u1.setLocation(user.getLocation());
 		u1.setLongitude(user.getLongitude());

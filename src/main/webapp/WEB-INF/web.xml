@@ -8,7 +8,7 @@
 	</welcome-file-list>
 
 	<listener>
-		<listener-class>com.strandls.integrator.IntegratorServeletContextListener</listener-class>
+		<listener-class>com.strandls.integrator.IntegratorServletContextListener</listener-class>
 	</listener>
 	<filter>
 		<filter-name>GuiceFilter</filter-name>

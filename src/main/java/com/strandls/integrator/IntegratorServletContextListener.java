@@ -1,11 +1,16 @@
 /**
- * 
+ *
  */
 package com.strandls.integrator;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -14,8 +19,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.servlet.ServletContextEvent;
 
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.hibernate.SessionFactory;
@@ -28,24 +31,27 @@ import com.google.inject.Injector;
 import com.google.inject.Scopes;
 import com.google.inject.servlet.GuiceServletContextListener;
 import com.google.inject.servlet.ServletModule;
-import com.strandls.activity.controller.ActivitySerivceApi;
+import com.strandls.activity.controller.ActivityServiceApi;
 import com.strandls.integrator.controllers.IntegratorControllerModule;
 import com.strandls.integrator.dao.IntegratorDaoModule;
 import com.strandls.integrator.services.impl.IntegratorServiceModule;
 import com.strandls.taxonomy.controllers.TaxonomyTreeServicesApi;
 import com.strandls.user.controller.UserServiceApi;
-import com.strandls.userGroup.controller.UserGroupSerivceApi;
+import com.strandls.userGroup.controller.UserGroupServiceApi;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.PrecisionModel;
 
+import jakarta.persistence.Entity;
+import jakarta.servlet.ServletContextEvent;
+
 /**
- * 
+ *
  * @author vilay
  *
  */
-public class IntegratorServeletContextListener extends GuiceServletContextListener {
+public class IntegratorServletContextListener extends GuiceServletContextListener {
 
-	private static final Logger logger = LoggerFactory.getLogger(IntegratorServeletContextListener.class);
+	private static final Logger logger = LoggerFactory.getLogger(IntegratorServletContextListener.class);
 
 	@Override
 	protected Injector getInjector() {
@@ -71,14 +77,14 @@ public class IntegratorServeletContextListener extends GuiceServletContextListen
 				bind(GeometryFactory.class).toInstance(geofactory);
 
 				Map<String, String> props = new HashMap<>();
-				props.put("javax.ws.rs.Application", ApplicationConfig.class.getName());
+				props.put("jakarta.ws.rs.Application", ApplicationConfig.class.getName());
 				props.put("jersey.config.server.provider.packages", "com");
 				props.put("jersey.config.server.wadl.disableWadl", "true");
 
 				bind(UserServiceApi.class).in(Scopes.SINGLETON);
-				bind(ActivitySerivceApi.class).in(Scopes.SINGLETON);
+				bind(ActivityServiceApi.class).in(Scopes.SINGLETON);
 				bind(TaxonomyTreeServicesApi.class).in(Scopes.SINGLETON);
-				bind(UserGroupSerivceApi.class).in(Scopes.SINGLETON);
+				bind(UserGroupServiceApi.class).in(Scopes.SINGLETON);
 				bind(SessionFactory.class).toInstance(sessionFactory);
 				bind(ServletContainer.class).in(Scopes.SINGLETON);
 
@@ -91,20 +97,48 @@ public class IntegratorServeletContextListener extends GuiceServletContextListen
 	protected List<Class<?>> getEntityClassesFromPackage(String packageName)
 			throws URISyntaxException, IOException, ClassNotFoundException {
 
-		List<String> classNames = ApplicationConfig.getClassNamesFromPackage(packageName);
+		List<String> classNames = getClassNamesFromPackage(packageName);
 		List<Class<?>> classes = new ArrayList<>();
 		for (String className : classNames) {
 			Class<?> cls = Class.forName(className);
 			Annotation[] annotations = cls.getAnnotations();
 
 			for (Annotation annotation : annotations) {
-				if (annotation instanceof javax.persistence.Entity) {
+				if (annotation instanceof Entity) {
 					classes.add(cls);
 				}
 			}
 		}
 
 		return classes;
+	}
+
+	private static ArrayList<String> getClassNamesFromPackage(final String packageName)
+			throws URISyntaxException, IOException {
+
+		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+		ArrayList<String> names = new ArrayList<>();
+		URL packageURL = classLoader.getResource(packageName.replace('.', '/')); // fixed resource path
+
+		if (packageURL == null) {
+			throw new IOException("Package URL not found for package: " + packageName);
+		}
+
+		URI uri = new URI(packageURL.toString());
+		File folder = new File(uri.getPath());
+
+		Files.find(Path.of(folder.getAbsolutePath()), Integer.MAX_VALUE, (p, bfa) -> bfa.isRegularFile())
+				.forEach(file -> {
+					String name = file.toFile().getAbsolutePath()
+							.replace(folder.getAbsolutePath() + File.separatorChar, "")
+							.replace(File.separatorChar, '.');
+					if (name.indexOf('.') != -1) {
+						name = packageName + '.' + name.substring(0, name.lastIndexOf('.'));
+						names.add(name);
+					}
+				});
+
+		return names;
 	}
 
 	@Override

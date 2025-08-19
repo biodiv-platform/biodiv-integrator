@@ -2,8 +2,6 @@ package com.strandls.integrator.dao;
 
 import java.util.List;
 
-import javax.inject.Inject;
-
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
@@ -12,6 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import com.strandls.integrator.pojo.UserGroupTraitRule;
 import com.strandls.integrator.util.AbstractDAO;
+
+import jakarta.inject.Inject;
 
 public class UserGroupTraitRuleDao extends AbstractDAO<UserGroupTraitRule, Long> {
 

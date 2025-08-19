@@ -1,18 +1,18 @@
 package com.strandls.integrator;
 
-import javax.ws.rs.core.HttpHeaders;
+import com.strandls.activity.controller.ActivityServiceApi;
+import com.strandls.userGroup.controller.UserGroupServiceApi;
 
-import com.strandls.activity.controller.ActivitySerivceApi;
-import com.strandls.userGroup.controller.UserGroupSerivceApi;
+import jakarta.ws.rs.core.HttpHeaders;
 
 public class Headers {
 
-	public ActivitySerivceApi addActivityHeader(ActivitySerivceApi activityService, String authHeader) {
+	public ActivityServiceApi addActivityHeader(ActivityServiceApi activityService, String authHeader) {
 		activityService.getApiClient().addDefaultHeader(HttpHeaders.AUTHORIZATION, authHeader);
 		return activityService;
 	}
 
-	public UserGroupSerivceApi addUserGroupHeader(UserGroupSerivceApi uerGroupServiceApi, String authHeader) {
+	public UserGroupServiceApi addUserGroupHeader(UserGroupServiceApi uerGroupServiceApi, String authHeader) {
 		uerGroupServiceApi.getApiClient().addDefaultHeader(HttpHeaders.AUTHORIZATION, authHeader);
 		return uerGroupServiceApi;
 	}

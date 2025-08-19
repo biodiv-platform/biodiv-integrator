@@ -10,10 +10,6 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.HttpHeaders;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +40,7 @@ import com.strandls.taxonomy.controllers.TaxonomyTreeServicesApi;
 import com.strandls.taxonomy.pojo.BreadCrumb;
 import com.strandls.user.ApiException;
 import com.strandls.user.controller.UserServiceApi;
-import com.strandls.userGroup.controller.UserGroupSerivceApi;
+import com.strandls.userGroup.controller.UserGroupServiceApi;
 import com.strandls.userGroup.pojo.UserGroupIbp;
 import com.strandls.userGroup.pojo.UserGroupMappingCreateData;
 import com.strandls.userGroup.pojo.UserGroupObservation;
@@ -54,6 +50,10 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.PrecisionModel;
 import com.vividsolutions.jts.io.WKTReader;
+
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.core.HttpHeaders;
 
 public class RuleFilterServiceImpl implements RuleFilterService {
 
@@ -93,7 +93,7 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 	private LogActivities logActivity;
 
 	@Inject
-	private UserGroupSerivceApi ugService;
+	private UserGroupServiceApi ugService;
 
 	@Inject
 	private Headers headers;

@@ -2,14 +2,14 @@ package com.strandls.integrator.pojo;
 
 import java.io.Serializable;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "ug_filter_rule")
@@ -122,13 +122,13 @@ public class UserGroupFilterRule implements Serializable {
 	public void setHasObservedOnDateRule(Boolean hasObservedOnDateRule) {
 		this.hasObservedOnDateRule = hasObservedOnDateRule;
 	}
-	
+
 	@Column(name = "has_trait_rule", columnDefinition = "BOOLEAN DEFAULT FALSE")
 	public Boolean getHasTraitRule() {
 		return hasTraitRule;
 	}
-	
-	public void setHasTraitRule (Boolean hasTraitRule) {
+
+	public void setHasTraitRule(Boolean hasTraitRule) {
 		this.hasTraitRule = hasTraitRule;
 	}
 

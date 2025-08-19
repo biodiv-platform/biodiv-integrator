@@ -2,13 +2,13 @@ package com.strandls.integrator.services;
 
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.strandls.integrator.pojo.ShowFilterRule;
 import com.strandls.integrator.pojo.UserGroupFilterEnable;
 import com.strandls.integrator.pojo.UserGroupFilterRemove;
 import com.strandls.integrator.pojo.UserGroupFilterRuleInputData;
 import com.strandls.integrator.pojo.UserGroupObvRuleData;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 public interface RuleFilterService {
 

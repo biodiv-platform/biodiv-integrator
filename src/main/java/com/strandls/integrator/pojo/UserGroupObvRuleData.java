@@ -90,11 +90,11 @@ public class UserGroupObvRuleData {
 	public void setAuthorId(Long authorId) {
 		this.authorId = authorId;
 	}
-	
+
 	public Map<String, List<Long>> getTraits() {
 		return traits;
 	}
-	
+
 	public void setTraits(Map<String, List<Long>> traits) {
 		this.traits = traits;
 	}

@@ -1,11 +1,9 @@
 package com.strandls.integrator.services.impl;
 
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.strandls.activity.controller.ActivitySerivceApi;
+import com.strandls.activity.controller.ActivityServiceApi;
 import com.strandls.activity.pojo.ActivityLoggingData;
 import com.strandls.activity.pojo.DatatableActivityLogging;
 import com.strandls.activity.pojo.DocumentActivityLogging;
@@ -14,12 +12,14 @@ import com.strandls.activity.pojo.SpeciesActivityLogging;
 import com.strandls.activity.pojo.UserGroupActivityLogging;
 import com.strandls.integrator.Headers;
 
+import jakarta.inject.Inject;
+
 public class LogActivities {
 
 	private final Logger logger = LoggerFactory.getLogger(LogActivities.class);
 
 	@Inject
-	private ActivitySerivceApi activityService;
+	private ActivityServiceApi activityService;
 
 	@Inject
 	private Headers headers;

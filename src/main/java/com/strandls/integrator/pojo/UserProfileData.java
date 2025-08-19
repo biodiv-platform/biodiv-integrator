@@ -1,5 +1,6 @@
 package com.strandls.integrator.pojo;
 
+import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -71,7 +72,7 @@ public class UserProfileData {
 		this.sendNotification = user.getSendNotification();
 		this.emailValidation = user.getEmailValidation();
 		this.mobileValidation = user.getMobileValidation();
-		this.lastLoginDate = user.getLastLoginDate();
+		this.lastLoginDate = user.getDateCreated();
 
 		this.isAdmin = false;
 
@@ -334,5 +335,9 @@ public class UserProfileData {
 
 	public void setIsAdmin(Boolean isAdmin) {
 		this.isAdmin = isAdmin;
+	}
+
+	public Date convertToDate(OffsetDateTime odt) {
+		return odt == null ? null : Date.from(odt.toInstant());
 	}
 }

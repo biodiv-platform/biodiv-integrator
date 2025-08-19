@@ -3,7 +3,6 @@ package com.strandls.integrator.pojo;
 import java.util.List;
 import java.util.Map;
 
-
 public class UserGroupFilterRuleInputData {
 
 	private Boolean hasUserRule;
@@ -28,7 +27,8 @@ public class UserGroupFilterRuleInputData {
 	 * @param observedOnDateList
 	 */
 	public UserGroupFilterRuleInputData(Boolean hasUserRule, List<Long> taxonomicIdList, List<String> spartialDataList,
-			List<UserGroupFilterDate> createdOnDateList, List<UserGroupFilterDate> observedOnDateList, List<Map<String, Long>> traitList) {
+			List<UserGroupFilterDate> createdOnDateList, List<UserGroupFilterDate> observedOnDateList,
+			List<Map<String, Long>> traitList) {
 		super();
 		this.hasUserRule = hasUserRule;
 		this.taxonomicIdList = taxonomicIdList;
@@ -77,7 +77,7 @@ public class UserGroupFilterRuleInputData {
 	public void setObservedOnDateList(List<UserGroupFilterDate> observedOnDateList) {
 		this.observedOnDateList = observedOnDateList;
 	}
-	
+
 	public List<Map<String, Long>> getTraitList() {
 		return traitList;
 	}
