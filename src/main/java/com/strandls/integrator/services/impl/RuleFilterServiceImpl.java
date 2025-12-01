@@ -247,6 +247,9 @@ public class RuleFilterServiceImpl implements RuleFilterService {
 	public void bgPostingUG(HttpServletRequest request, UserGroupObvRuleData ugFilterData, Boolean isDataTableUpload) {
 
 		try {
+			// Add authorization header to ugService before making calls
+			ugService = headers.addUserGroupHeader(ugService, request.getHeader(HttpHeaders.AUTHORIZATION));
+
 			List<UserGroupIbp> ugObservation = new ArrayList<>();
 			List<UserGroupFilterRule> ugFilterList = ugFilterRuleDao.findAll();
 			ugObservation = ugService.getObservationUserGroup(ugFilterData.getObservationId().toString());
